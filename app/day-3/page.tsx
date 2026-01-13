@@ -221,6 +221,33 @@ export default function Day3Page() {
     setIsDragging(false)
   }
 
+  // Touch event handlers for mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setDragStart({ x: touch.clientX, y: touch.clientY })
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return
+    e.preventDefault() // Prevent scrolling while dragging
+
+    const touch = e.touches[0]
+    const dx = (dragStart.x - touch.clientX) * 0.15
+    const dy = (dragStart.y - touch.clientY) * 0.15
+
+    setPanPosition((prev) => ({
+      x: Math.max(0, Math.min(100, prev.x + dx)),
+      y: Math.max(0, Math.min(100, prev.y + dy)),
+    }))
+
+    setDragStart({ x: touch.clientX, y: touch.clientY })
+  }
+
+  const handleTouchEnd = () => {
+    setIsDragging(false)
+  }
+
   const handleStoryClick = (partIndex: number) => {
     if (partIndex < unlockedParts) {
       setSelectedStory(STORY_PARTS[partIndex])
@@ -257,40 +284,40 @@ export default function Day3Page() {
       </div>
 
       {/* Day title */}
-      <div className="absolute top-0 left-0 z-30 bg-white/90 px-4 py-3 rounded-br-xl shadow-lg">
-        <h1 className="text-base font-bold text-[#5D4037]">Day 3: The Empty Tomb</h1>
+      <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg">
+        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 3: The Empty Tomb</h1>
       </div>
 
       <Link
         href="/"
-        className="absolute top-0 right-0 z-30 bg-white/90 px-4 py-3 rounded-bl-xl shadow-lg flex items-center gap-2 hover:bg-white transition-colors"
+        className="absolute top-0 right-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-bl-xl shadow-lg flex items-center gap-1 sm:gap-2 hover:bg-white transition-colors touch-manipulation"
       >
-        <Home className="w-5 h-5" />
-        <span className="font-medium">Home page</span>
+        <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+        <span className="font-medium text-xs sm:text-base hidden xs:inline">Home</span>
       </Link>
 
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 bg-white/95 px-8 pt-5 pb-10 rounded-b-2xl shadow-lg flex items-start gap-4">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 bg-white/95 px-2 sm:px-4 md:px-8 pt-3 sm:pt-4 md:pt-5 pb-6 sm:pb-8 md:pb-10 rounded-b-2xl shadow-lg flex items-start gap-1 sm:gap-2 md:gap-4 overflow-x-auto max-w-[95vw] scrollbar-hide">
         {STORY_PARTS.map((part, index) => (
-          <div key={part.id} className="relative flex flex-col items-center">
+          <div key={part.id} className="relative flex flex-col items-center flex-shrink-0">
             <button
               onClick={() => handleStoryClick(index)}
               disabled={index >= unlockedParts}
               className={`
-                px-6 py-3 rounded-lg text-sm font-medium transition-all flex items-center gap-2
+                px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 touch-manipulation
                 ${
                   index < unlockedParts
-                    ? "bg-[#4CAF50] text-white hover:bg-[#45a049] cursor-pointer"
+                    ? "bg-[#4CAF50] text-white active:bg-[#45a049] sm:hover:bg-[#45a049] cursor-pointer"
                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                 }
               `}
             >
-              {index < unlockedParts ? <BookOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-              {part.title}
+              {index < unlockedParts ? <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" /> : <Lock className="w-3 h-3 sm:w-4 sm:h-4" />}
+              <span className="whitespace-nowrap">{part.title}</span>
             </button>
             {index >= unlockedParts && (
-              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-red-500 text-white px-2 py-0.5 rounded text-[10px] whitespace-nowrap shadow-md">
-                <Lock className="w-3 h-3" />
-                LOCKED
+              <div className="absolute -bottom-4 sm:-bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] whitespace-nowrap shadow-md">
+                <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span className="hidden sm:inline">LOCKED</span>
               </div>
             )}
           </div>
@@ -298,13 +325,13 @@ export default function Day3Page() {
 
         <button
           onClick={() => foundItems.length === ITEMS.length && setShowGoodyBag(true)}
-          className={`ml-2 p-3 rounded-full transition-all ${
+          className={`ml-1 sm:ml-2 p-2 sm:p-2.5 md:p-3 rounded-full transition-all touch-manipulation flex-shrink-0 ${
             foundItems.length === ITEMS.length
-              ? "bg-red-500 hover:bg-red-600 cursor-pointer animate-bounce"
+              ? "bg-red-500 active:bg-red-600 sm:hover:bg-red-600 cursor-pointer animate-bounce"
               : "bg-gray-200 cursor-not-allowed"
           }`}
         >
-          <Gift className={`w-6 h-6 ${foundItems.length === ITEMS.length ? "text-white" : "text-gray-400"}`} />
+          <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === ITEMS.length ? "text-white" : "text-gray-400"}`} />
         </button>
       </div>
 
@@ -325,11 +352,14 @@ export default function Day3Page() {
       {/* Pannable container */}
       <div
         ref={containerRef}
-        className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing"
+        className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing touch-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <div
           className="absolute w-[150%] h-[150%] transition-transform duration-100 ease-out"
@@ -350,9 +380,13 @@ export default function Day3Page() {
             <button
               key={item.id}
               onClick={(e) => handleItemClick(item.id, e)}
+              onTouchStart={(e) => {
+                // Prevent triggering drag when tapping items
+                e.stopPropagation()
+              }}
               className={`
-                absolute transition-all duration-300 hover:scale-125 z-10
-                ${foundItems.includes(item.id) ? "opacity-0 pointer-events-none scale-150" : "opacity-100 hover:brightness-110"}
+                absolute transition-all duration-300 active:scale-125 sm:hover:scale-125 z-10 touch-manipulation
+                ${foundItems.includes(item.id) ? "opacity-0 pointer-events-none scale-150" : "opacity-100 sm:hover:brightness-110"}
                 ${hintItemId === item.id ? "animate-pulse scale-125" : ""}
               `}
               style={{
@@ -361,6 +395,9 @@ export default function Day3Page() {
                 transform: "translate(-50%, -50%)",
                 filter:
                   hintItemId === item.id ? "drop-shadow(0 0 20px #FFD700) drop-shadow(0 0 40px #FFD700)" : undefined,
+                minWidth: "48px",
+                minHeight: "48px",
+                padding: "8px",
               }}
               aria-label={`Find ${item.name}`}
             >
@@ -369,7 +406,7 @@ export default function Day3Page() {
                 alt={item.name}
                 width={60}
                 height={60}
-                className="object-contain drop-shadow-lg pointer-events-none"
+                className="object-contain drop-shadow-lg pointer-events-none w-12 h-12 sm:w-14 sm:h-14 md:w-[60px] md:h-[60px]"
                 draggable={false}
               />
             </button>
@@ -378,53 +415,53 @@ export default function Day3Page() {
       </div>
 
       {/* Navigation controller */}
-      <div className="absolute bottom-28 right-8 z-20 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-2">
-        <div className="grid grid-cols-3 gap-1">
+      <div className="absolute bottom-24 sm:bottom-28 right-4 sm:right-8 z-20 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-1.5 sm:p-2">
+        <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
           <div />
           <button
             onClick={() => handlePan("up")}
             disabled={panPosition.y <= 0}
-            className="bg-[#4CAF50] hover:bg-[#45a049] disabled:bg-gray-300 p-2 rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="bg-[#4CAF50] active:bg-[#45a049] sm:hover:bg-[#45a049] disabled:bg-gray-300 p-1.5 sm:p-2 rounded-lg transition-colors disabled:cursor-not-allowed touch-manipulation"
           >
-            <ChevronUp className="w-6 h-6 text-white" />
+            <ChevronUp className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
           <div />
           <button
             onClick={() => handlePan("left")}
             disabled={panPosition.x <= 0}
-            className="bg-[#4CAF50] hover:bg-[#45a049] disabled:bg-gray-300 p-2 rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="bg-[#4CAF50] active:bg-[#45a049] sm:hover:bg-[#45a049] disabled:bg-gray-300 p-1.5 sm:p-2 rounded-lg transition-colors disabled:cursor-not-allowed touch-manipulation"
           >
-            <ChevronLeft className="w-6 h-6 text-white" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
-          <div className="bg-gray-200 p-2 rounded-lg flex items-center justify-center">
-            <div className="w-2 h-2 bg-gray-400 rounded-full" />
+          <div className="bg-gray-200 p-1.5 sm:p-2 rounded-lg flex items-center justify-center">
+            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-gray-400 rounded-full" />
           </div>
           <button
             onClick={() => handlePan("right")}
             disabled={panPosition.x >= 100}
-            className="bg-[#4CAF50] hover:bg-[#45a049] disabled:bg-gray-300 p-2 rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="bg-[#4CAF50] active:bg-[#45a049] sm:hover:bg-[#45a049] disabled:bg-gray-300 p-1.5 sm:p-2 rounded-lg transition-colors disabled:cursor-not-allowed touch-manipulation"
           >
-            <ChevronRight className="w-6 h-6 text-white" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
           <div />
           <button
             onClick={() => handlePan("down")}
             disabled={panPosition.y >= 100}
-            className="bg-[#4CAF50] hover:bg-[#45a049] disabled:bg-gray-300 p-2 rounded-lg transition-colors disabled:cursor-not-allowed"
+            className="bg-[#4CAF50] active:bg-[#45a049] sm:hover:bg-[#45a049] disabled:bg-gray-300 p-1.5 sm:p-2 rounded-lg transition-colors disabled:cursor-not-allowed touch-manipulation"
           >
-            <ChevronDown className="w-6 h-6 text-white" />
+            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </button>
           <div />
         </div>
       </div>
 
       {/* Bottom item bar */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-8 py-4 rounded-full shadow-xl flex items-center gap-6">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-2 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4 rounded-full sm:rounded-full shadow-xl flex items-center gap-2 sm:gap-4 md:gap-6 max-w-[95vw] overflow-x-auto scrollbar-hide">
         {ITEMS.map((item) => (
-          <div key={item.id} className="flex flex-col items-center gap-1">
+          <div key={item.id} className="flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <div
               className={`
-                w-16 h-16 rounded-lg flex items-center justify-center transition-all duration-300
+                w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg flex items-center justify-center transition-all duration-300
                 ${foundItems.includes(item.id) ? "opacity-100" : "opacity-30"}
               `}
             >
@@ -433,59 +470,59 @@ export default function Day3Page() {
                 alt={item.name}
                 width={60}
                 height={60}
-                className={`object-contain ${!foundItems.includes(item.id) ? "grayscale brightness-50" : ""}`}
+                className={`object-contain w-full h-full ${!foundItems.includes(item.id) ? "grayscale brightness-50" : ""}`}
               />
             </div>
-            <span className="text-xs font-medium text-gray-700">
+            <span className="text-[10px] sm:text-xs font-medium text-gray-700 whitespace-nowrap">
               {foundItems.includes(item.id) ? "Found!" : `Item ${item.id}`}
             </span>
           </div>
         ))}
 
-        <div className="w-px h-16 bg-gray-300 mx-2" />
+        <div className="w-px h-12 sm:h-14 md:h-16 bg-gray-300 mx-1 sm:mx-2 flex-shrink-0" />
 
         <button
           onClick={handleHint}
           disabled={foundItems.length === ITEMS.length}
-          className="bg-yellow-400 text-yellow-900 px-6 py-3 rounded-full font-bold text-lg hover:bg-yellow-300 transition-colors shadow-md flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-yellow-400 text-yellow-900 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg active:bg-yellow-300 sm:hover:bg-yellow-300 transition-colors shadow-md flex items-center gap-1 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex-shrink-0"
         >
-          <Lightbulb className="w-5 h-5" />
-          Hint
+          <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Hint</span>
         </button>
 
         <button
           onClick={() => setShowHelp(true)}
-          className="bg-[#4CAF50] text-white px-6 py-3 rounded-full font-bold text-lg hover:bg-[#45a049] transition-colors shadow-md flex items-center gap-2"
+          className="bg-[#4CAF50] text-white px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors shadow-md flex items-center gap-1 sm:gap-2 touch-manipulation flex-shrink-0"
         >
-          <HelpCircle className="w-5 h-5" />
-          Help
+          <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Help</span>
         </button>
       </div>
 
       {/* Story Modal */}
       {selectedStory && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 relative shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setSelectedStory(null)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full active:bg-gray-100 sm:hover:bg-gray-100 transition-colors touch-manipulation"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
-            <div className="text-center mb-4">
-              <span className="bg-[#4CAF50] text-white px-4 py-1 rounded-full text-sm font-medium">
+            <div className="text-center mb-3 sm:mb-4">
+              <span className="bg-[#4CAF50] text-white px-3 sm:px-4 py-1 rounded-full text-xs sm:text-sm font-medium">
                 {selectedStory.title}
               </span>
             </div>
 
-            <h3 className="text-xl font-bold text-[#5D4037] mb-2 text-center">{selectedStory.verse}</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-[#5D4037] mb-2 text-center">{selectedStory.verse}</h3>
 
-            <p className="text-gray-700 leading-relaxed text-lg">{selectedStory.text}</p>
+            <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">{selectedStory.text}</p>
 
             <button
               onClick={() => setSelectedStory(null)}
-              className="mt-6 w-full bg-[#4CAF50] text-white py-3 rounded-xl font-bold hover:bg-[#45a049] transition-colors"
+              className="mt-4 sm:mt-6 w-full bg-[#4CAF50] text-white py-2.5 sm:py-3 rounded-xl font-bold active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation"
             >
               Continue Exploring
             </button>
@@ -495,54 +532,54 @@ export default function Day3Page() {
 
       {/* Help Modal */}
       {showHelp && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 relative shadow-2xl">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 sm:p-6">
+          <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowHelp(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full active:bg-gray-100 sm:hover:bg-gray-100 transition-colors touch-manipulation"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
-            <div className="flex items-center gap-3 mb-4">
-              <HelpCircle className="w-8 h-8 text-[#4CAF50]" />
-              <h3 className="text-xl font-bold text-[#5D4037]">How to Play</h3>
+            <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+              <HelpCircle className="w-6 h-6 sm:w-8 sm:h-8 text-[#4CAF50]" />
+              <h3 className="text-lg sm:text-xl font-bold text-[#5D4037]">How to Play</h3>
             </div>
 
-            <ul className="space-y-3 text-gray-700">
+            <ul className="space-y-2 sm:space-y-3 text-gray-700">
               <li className="flex items-start gap-2">
-                <span className="bg-[#4CAF50] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <span className="bg-[#4CAF50] text-white w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 mt-0.5">
                   1
                 </span>
-                <span>Use the arrows or click and drag to navigate around the scene</span>
+                <span className="text-sm sm:text-base">Use the arrows or drag to navigate around the scene</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="bg-[#4CAF50] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <span className="bg-[#4CAF50] text-white w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 mt-0.5">
                   2
                 </span>
-                <span>Click on hidden objects when you find them</span>
+                <span className="text-sm sm:text-base">Tap on hidden objects when you find them</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="bg-[#4CAF50] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <span className="bg-[#4CAF50] text-white w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 mt-0.5">
                   3
                 </span>
-                <span>Each object unlocks a new part of the Easter story</span>
+                <span className="text-sm sm:text-base">Each object unlocks a new part of the Easter story</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="bg-[#4CAF50] text-white w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+                <span className="bg-[#4CAF50] text-white w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold flex-shrink-0 mt-0.5">
                   4
                 </span>
-                <span>Click on the story parts at the top to read the Bible verses</span>
+                <span className="text-sm sm:text-base">Tap on the story parts at the top to read the Bible verses</span>
               </li>
             </ul>
 
-            <p className="mt-4 text-sm text-gray-500 text-center">
+            <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500 text-center">
               Found: {foundItems.length} / {ITEMS.length} items
             </p>
 
             <button
               onClick={() => setShowHelp(false)}
-              className="mt-4 w-full bg-[#4CAF50] text-white py-3 rounded-xl font-bold hover:bg-[#45a049] transition-colors"
+              className="mt-3 sm:mt-4 w-full bg-[#4CAF50] text-white py-2.5 sm:py-3 rounded-xl font-bold active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation"
             >
               Got it!
             </button>
@@ -552,21 +589,21 @@ export default function Day3Page() {
 
       {/* Goody Bag Modal */}
       {showGoodyBag && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setShowGoodyBag(false)}
-              className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition-colors"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full active:bg-gray-100 sm:hover:bg-gray-100 transition-colors touch-manipulation"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
 
-            <div className="text-center mb-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto flex items-center justify-center mb-4 shadow-lg">
-                <Gift className="w-10 h-10 text-white" />
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
+                <Gift className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-[#5D4037]">Well Done!</h2>
-              <p className="text-gray-600 mt-2 max-w-md mx-auto">
+              <h2 className="text-xl sm:text-2xl font-bold text-[#5D4037]">Well Done!</h2>
+              <p className="text-gray-600 mt-2 text-sm sm:text-base max-w-md mx-auto px-2">
                 {
                   "You've heard the truth about what happened that first Easter. Here are some activities you can do together as a family!"
                 }
@@ -574,7 +611,7 @@ export default function Day3Page() {
             </div>
 
             {/* Goody bag items grid */}
-            <div className="grid grid-cols-4 sm:grid-cols-7 gap-3 mb-6">
+            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2 sm:gap-3 mb-4 sm:mb-6">
               {GOODY_BAG_ITEMS.map((item) => {
                 const IconComponent = item.icon
                 return (
@@ -582,16 +619,16 @@ export default function Day3Page() {
                     <button
                       onClick={() => setActiveGoodyItem(activeGoodyItem === item.id ? null : item.id)}
                       className={`
-                        w-full aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all
+                        w-full aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-all touch-manipulation
                         ${
                           activeGoodyItem === item.id
                             ? "bg-[#4CAF50] text-white scale-105 shadow-lg"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            : "bg-gray-100 text-gray-700 active:bg-gray-200 sm:hover:bg-gray-200"
                         }
                       `}
                     >
-                      <IconComponent className="w-6 h-6" />
-                      <span className="text-[10px] font-medium">{item.label}</span>
+                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+                      <span className="text-[9px] sm:text-[10px] font-medium text-center px-0.5">{item.label}</span>
                     </button>
                   </div>
                 )
@@ -600,7 +637,7 @@ export default function Day3Page() {
 
             {/* Active item content */}
             {activeGoodyItem && (
-              <div className="bg-[#FFF8E7] rounded-xl p-4 mb-6 border-2 border-[#4CAF50]/20">
+              <div className="bg-[#FFF8E7] rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 border-2 border-[#4CAF50]/20">
                 {(() => {
                   const item = GOODY_BAG_ITEMS.find((i) => i.id === activeGoodyItem)
                   if (!item) return null
@@ -608,12 +645,12 @@ export default function Day3Page() {
                   return (
                     <>
                       <div className="flex items-center gap-2 mb-2">
-                        <IconComponent className="w-5 h-5 text-[#4CAF50]" />
-                        <h4 className="font-bold text-[#5D4037]">{item.label}</h4>
+                        <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-[#4CAF50]" />
+                        <h4 className="font-bold text-sm sm:text-base text-[#5D4037]">{item.label}</h4>
                       </div>
-                      <p className="text-gray-700 text-sm leading-relaxed">{item.content}</p>
+                      <p className="text-gray-700 text-xs sm:text-sm leading-relaxed">{item.content}</p>
                       {item.download && (
-                        <button className="mt-3 bg-[#4CAF50] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#45a049] transition-colors">
+                        <button className="mt-2 sm:mt-3 bg-[#4CAF50] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation">
                           {item.download}
                         </button>
                       )}
@@ -622,7 +659,7 @@ export default function Day3Page() {
                           href={item.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-3 inline-block bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                          className="mt-2 sm:mt-3 inline-block bg-blue-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium active:bg-blue-600 sm:hover:bg-blue-600 transition-colors touch-manipulation"
                         >
                           Open Link
                         </a>
@@ -633,18 +670,18 @@ export default function Day3Page() {
               </div>
             )}
 
-            <p className="text-center text-[#4CAF50] font-medium text-lg mb-4">{"He is not here; He has risen!"}</p>
+            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"He is not here; He has risen!"}</p>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
                 onClick={() => setShowGoodyBag(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors"
+                className="flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 rounded-xl font-bold active:bg-gray-300 sm:hover:bg-gray-300 transition-colors touch-manipulation text-sm sm:text-base"
               >
                 Keep Exploring
               </button>
               <Link
                 href="/"
-                className="flex-1 bg-[#4CAF50] text-white py-3 rounded-xl font-bold hover:bg-[#45a049] transition-colors text-center"
+                className="flex-1 bg-[#4CAF50] text-white py-2.5 sm:py-3 rounded-xl font-bold active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors text-center touch-manipulation text-sm sm:text-base"
               >
                 Back to Home
               </Link>

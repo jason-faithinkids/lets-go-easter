@@ -11,6 +11,12 @@ export const metadata: Metadata = {
   title: "Let's Go! A Family Easter Adventure",
   description: "An interactive Easter story game for families",
   generator: "v0.app",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
   icons: {
     icon: [
       {
