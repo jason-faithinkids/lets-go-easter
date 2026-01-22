@@ -24,6 +24,7 @@ import {
   Ear,
   MessageCircle,
   Palette,
+  Volume2,
 } from "lucide-react"
 
 // Define the findable items with their actual positions on the background
@@ -147,6 +148,8 @@ export default function Day3Page() {
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [newlyUnlockedPart, setNewlyUnlockedPart] = useState<number | null>(null)
+  const [audioCountdown, setAudioCountdown] = useState<number>(0)
+  const [showConfetti, setShowConfetti] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Calculate unlocked story parts based on found items
@@ -157,10 +160,29 @@ export default function Day3Page() {
       const timer = setTimeout(() => {
         setSelectedStory(STORY_PARTS[newlyUnlockedPart - 1])
         setNewlyUnlockedPart(null)
+        // Start 30 second countdown when story opens
+        setAudioCountdown(30)
       }, 300)
       return () => clearTimeout(timer)
     }
   }, [newlyUnlockedPart])
+
+  // Countdown timer for audio
+  useEffect(() => {
+    if (audioCountdown > 0 && selectedStory) {
+      const timer = setTimeout(() => {
+        setAudioCountdown(audioCountdown - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [audioCountdown, selectedStory])
+
+  // Reset countdown when story closes
+  useEffect(() => {
+    if (!selectedStory) {
+      setAudioCountdown(0)
+    }
+  }, [selectedStory])
 
   const handleItemClick = useCallback(
     (itemId: number, e: React.MouseEvent) => {
@@ -174,7 +196,12 @@ export default function Day3Page() {
         }
 
         if (newFoundItems.length === ITEMS.length) {
-          setTimeout(() => setShowGoodyBag(true), 1500)
+          setTimeout(() => {
+            setShowConfetti(true)
+            setShowGoodyBag(true)
+            // Hide confetti after animation
+            setTimeout(() => setShowConfetti(false), 3000)
+          }, 1500)
         }
       }
     },
@@ -251,6 +278,8 @@ export default function Day3Page() {
   const handleStoryClick = (partIndex: number) => {
     if (partIndex < unlockedParts) {
       setSelectedStory(STORY_PARTS[partIndex])
+      // Start 30 second countdown when story opens
+      setAudioCountdown(30)
     }
   }
 
@@ -311,7 +340,14 @@ export default function Day3Page() {
                 }
               `}
             >
-              {index < unlockedParts ? <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" /> : <Lock className="w-3 h-3 sm:w-4 sm:h-4" />}
+              {index < unlockedParts ? (
+                <>
+                  <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                </>
+              ) : (
+                <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
+              )}
               <span className="whitespace-nowrap">{part.title}</span>
             </button>
             {index >= unlockedParts && (
@@ -339,12 +375,17 @@ export default function Day3Page() {
       {hintItemId && hintAngle !== null && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-25 pointer-events-none">
           <div
-            className="w-24 h-24 flex items-center justify-center animate-pulse"
-            style={{ transform: `rotate(${hintAngle}deg)` }}
+            className="w-24 h-24 sm:w-32 sm:h-32 flex items-center justify-center animate-pulse"
+            style={{ transform: `rotate(${hintAngle + 90}deg)` }}
           >
-            <div className="w-16 h-1 bg-yellow-400 rounded-full shadow-lg shadow-yellow-400/50 relative">
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-8 border-l-yellow-400 border-y-4 border-y-transparent" />
-            </div>
+            <Image
+              src="/images/lego-arrow.png"
+              alt="Hint arrow"
+              width={96}
+              height={96}
+              className="object-contain drop-shadow-2xl"
+              priority
+            />
           </div>
         </div>
       )}
@@ -516,15 +557,41 @@ export default function Day3Page() {
               </span>
             </div>
 
-            <h3 className="text-lg sm:text-xl font-bold text-[#5D4037] mb-2 text-center">{selectedStory.verse}</h3>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Volume2 className="w-4 h-4 sm:w-5 sm:h-5 text-[#4CAF50]" />
+              <h3 className="text-lg sm:text-xl font-bold text-[#5D4037] text-center">{selectedStory.verse}</h3>
+            </div>
 
-            <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">{selectedStory.text}</p>
+            <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg mb-4">{selectedStory.text}</p>
+
+            {/* Audio countdown indicator */}
+            {audioCountdown > 0 && (
+              <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Volume2 className="w-4 h-4 text-yellow-600 animate-pulse" />
+                  <p className="text-sm font-medium text-yellow-800">
+                    Please listen to the audio ({audioCountdown}s remaining)
+                  </p>
+                </div>
+                <div className="w-full bg-yellow-200 rounded-full h-2">
+                  <div
+                    className="bg-yellow-500 h-2 rounded-full transition-all duration-1000"
+                    style={{ width: `${((30 - audioCountdown) / 30) * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             <button
               onClick={() => setSelectedStory(null)}
-              className="mt-4 sm:mt-6 w-full bg-[#4CAF50] text-white py-2.5 sm:py-3 rounded-xl font-bold active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation"
+              disabled={audioCountdown > 0}
+              className={`mt-4 sm:mt-6 w-full py-2.5 sm:py-3 rounded-xl font-bold transition-colors touch-manipulation ${
+                audioCountdown > 0
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-[#4CAF50] text-white active:bg-[#45a049] sm:hover:bg-[#45a049]"
+              }`}
             >
-              Continue Exploring
+              {audioCountdown > 0 ? `Continue in ${audioCountdown}s...` : "Continue Exploring"}
             </button>
           </div>
         </div>
@@ -584,6 +651,27 @@ export default function Day3Page() {
               Got it!
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Confetti overlay */}
+      {showConfetti && (
+        <div className="fixed inset-0 z-[100] pointer-events-none">
+          {Array.from({ length: 50 }).map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 sm:w-3 sm:h-3 rounded-full animate-confetti"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: "-10px",
+                backgroundColor: ["#FFD700", "#FF6B6B", "#4ECDC4", "#45B7D1", "#FFA07A", "#98D8C8"][
+                  Math.floor(Math.random() * 6)
+                ],
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${2 + Math.random() * 2}s`,
+              }}
+            />
+          ))}
         </div>
       )}
 
