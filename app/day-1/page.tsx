@@ -31,27 +31,27 @@ import {
 const ITEMS = [
   {
     id: 1,
-    name: "Cross",
+    name: "Palm Branch",
     image: "/images/item-201.png",
-    position: { x: 20, y: 15 }, // On the crosses at top
+    position: { x: 30, y: 20 },
   },
   {
     id: 2,
-    name: "Green Brick",
+    name: "Donkey",
     image: "/images/item-202.png",
-    position: { x: 70, y: 75 }, // In the grass area
+    position: { x: 50, y: 60 },
   },
   {
     id: 3,
-    name: "Burial Cloths",
+    name: "Crown",
     image: "/images/item-203.png",
-    position: { x: 45, y: 50 }, // Near the tomb entrance
+    position: { x: 70, y: 30 },
   },
   {
     id: 4,
-    name: "Golden Cross",
+    name: "Crowd",
     image: "/images/item-201.png",
-    position: { x: 85, y: 30 },
+    position: { x: 25, y: 70 },
   },
 ]
 
@@ -60,100 +60,102 @@ const STORY_PARTS = [
   {
     id: 1,
     title: "Part 1",
-    verse: "Matthew 28:1-10",
-    text: "The day after the Sabbath day was the first day of the week. At dawn on the first day, Mary Magdalene and another woman named Mary went to look at the tomb.",
+    verse: "Matthew 21:1-11",
+    text: "As they approached Jerusalem and came to Bethphage on the Mount of Olives, Jesus sent two disciples, saying to them, 'Go to the village ahead of you, and at once you will find a donkey tied there, with her colt by her. Untie them and bring them to me.'",
   },
   {
     id: 2,
     title: "Part 2",
-    verse: "Matthew 28:1-10",
-    text: "At that time there was a strong earthquake. An angel of the Lord came down from heaven. The angel went to the tomb and rolled the stone away from the entrance. Then he sat on the stone. He was shining as bright as lightning. His clothes were white as snow. The soldiers guarding the tomb were very frightened of the angel. They shook with fear and then became like dead men.",
+    verse: "Matthew 21:1-11",
+    text: "The disciples went and did as Jesus had instructed them. They brought the donkey and the colt and placed their cloaks on them for Jesus to sit on.",
   },
   {
     id: 3,
     title: "Part 3",
-    verse: "Matthew 28:1-10",
-    text: 'The angel said to the women, "Don\'t be afraid. I know that you are looking for Jesus, the one who was killed on the cross. But he is not here. He has risen from death as he said he would. Come and see the place where his body was. And go quickly and tell his followers. Say to them: \'Jesus has risen from death. He is going into Galilee. He will be there before you. You will see him there.\'" Then the angel said, "Now I have told you."',
+    verse: "Matthew 21:1-11",
+    text: "A very large crowd spread their cloaks on the road, while others cut branches from the trees and spread them on the road. The crowds that went ahead of him and those that followed shouted, 'Hosanna to the Son of David! Blessed is he who comes in the name of the Lord! Hosanna in the highest heaven!'",
   },
   {
     id: 4,
     title: "Part 4",
-    verse: "Matthew 28:1-10",
-    text: 'The women left the tomb quickly. They were afraid, but they were also very happy. They ran to tell Jesus\' followers what had happened. Suddenly, Jesus met them and said, "Greetings." The women came up to Jesus, took hold of his feet, and worshiped him. Then Jesus said to them, "Don\'t be afraid. Go and tell my brothers to go on to Galilee. They will see me there."',
+    verse: "Matthew 21:4-5",
+    text: "This was to make clear the full meaning of what the prophet said: 'Tell the people of Jerusalem, Your king is coming to you. He is gentle and riding on a donkey. He is on the colt of a donkey.'",
   },
 ]
 
-// Goody bag activities for Day 3
+// Goody bag activities for Day 1
 const GOODY_BAG_ITEMS = [
   {
     id: "watch",
     icon: Clapperboard,
     label: "Watch",
-    content: "Watch The Easter Story Lego video from 3 min 36 secs to the end.",
-    embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=216&si=IkxmVHHvt4JnoAGg",
+    content: "Watch The Lego Easter Story video from the beginning until 1 min 37 secs.",
+    embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=0&end=97&si=IkxmVHHvt4JnoAGg",
   },
   {
     id: "build",
     icon: Blocks,
     label: "Build",
     content:
-      "A stone was rolled in front of the tomb to seal it. Can you make a Lego stone and test how well it rolls?",
+      "Jesus rode into Jerusalem on a donkey. Can you make something out of Lego for Jesus to ride into Jerusalem on? You don't have to make a donkey, you could make a car, an aeroplane, or even a cow.",
   },
   {
     id: "colour",
     icon: Palette,
     label: "Colour",
-    content: "Colour in the picture of the angel and women in front of the empty tomb.",
-    download: "Colouring Jesus' resurrection.pdf",
-    downloadUrl: "/images/Colouring Jesus' resurrection.pdf",
+    content: "Colour in the picture of Jesus entering Jerusalem on a donkey.",
+    download: "Colouring Arrival in Jerusalem.pdf",
+    downloadUrl: "/images/Colouring Arrival in Jerusalem.pdf",
   },
   {
     id: "craft",
     icon: Scissors,
     label: "Craft",
     content:
-      "Angel craft. You will need: a copy of the printout, scissors, glue and colouring pens (optional: foil, glitter). Colour in the angel and cut it out. Then design some angel wing shapes on the Lego board before cutting them out to stick behind the angel.",
-    download: "Angel craft.pdf",
-    downloadUrl: "/images/Angel craft.pdf",
+      "Make a donkey headband. You will need: the craft download printed, scissors, colouring pens, glue, strips of paper measuring 5x30cm to create the headband to go around your child's head. To make the donkey headband, children colour in their lego donkey ears (1x6 lego plates) and the lego palm leaves, cut them out and then stick them onto the head band with the title 'Jesus is the king God promised (Matthew 21:1-11)'.",
+    download: "Donkey headband.pdf",
+    downloadUrl: "/images/Donkey headband.pdf",
   },
   {
     id: "food",
     icon: CookingPot,
     label: "Food",
     content:
-      "Make a tomb out of toast, using jam to stick the pieces together. Cut one piece of toast into a circle to be the stone and have it rolled to one side to see that the tomb is empty.",
+      "Make some animal biscuits using this simple recipe and any animal cookie cutters you have at home (don't worry if you don't have a donkey biscuit cutter).",
+    link: "https://www.sainsburys.co.uk/gol-ui/recipes/easy-biscuits",
   },
   {
     id: "listen",
     icon: Ear,
     label: "Listen",
-    content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
+    content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to have fun exploring the story of Jesus' arrival into Jerusalem. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: "https://faithinkids.org",
   },
   {
     id: "discuss",
     icon: MessageCircle,
     label: "Discuss",
-    content: `Bible verse: "The angel said to the women, 'Don't be afraid. I know that you are looking for Jesus, the one who was killed on the cross. But he is not here. He has risen from death as he said he would. Come and see the place where his body was.'" (Matthew 28:5-6)
+    content: `Bible verse: "This was to make clear the full meaning of what the prophet said: 'Tell the people of Jerusalem, Your king is coming to you. He is gentle and riding on a donkey. He is on the colt of a donkey.'" (Matthew 21:4-5)
 
 Use the picture and the verse to answer the following questions:
 • Who is in this picture?
-• What did the women see in the tomb?
-• Why wasn't Jesus in the tomb?
+• What is he riding?
+• How might you expect a king to travel?
+• The crowd waved palm branches to welcome Jesus. How would you expect a crowd to greet a king?
 
-A prayer to pray: Dear God, thank you for the good news that King Jesus didn't stay dead but was raised back to life. Amen.`,
-    image: "/images/Angel at the tomb Sun morning Image 1.jpeg",
+A prayer to pray: Dear God, thank you that Jesus is the king you promised to send. Amen.`,
+    image: "/images/Colouring Arrival in Jerusalem.pdf",
   },
 ]
 
-export default function Day3Page() {
+export default function Day1Page() {
   const [foundItems, setFoundItems] = useState<number[]>([])
   const [panPosition, setPanPosition] = useState({ x: 50, y: 50 })
   const [selectedStory, setSelectedStory] = useState<(typeof STORY_PARTS)[0] | null>(null)
   const [showHelp, setShowHelp] = useState(false)
-  const [showGoodyBag, setShowGoodyBag] = useState(false) // renamed from showComplete
+  const [showGoodyBag, setShowGoodyBag] = useState(false)
   const [hintItemId, setHintItemId] = useState<number | null>(null)
-  const [activeGoodyItem, setActiveGoodyItem] = useState<string | null>(null) // track which goody bag item is expanded
+  const [activeGoodyItem, setActiveGoodyItem] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [newlyUnlockedPart, setNewlyUnlockedPart] = useState<number | null>(null)
@@ -161,7 +163,6 @@ export default function Day3Page() {
   const [showConfetti, setShowConfetti] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Calculate unlocked story parts based on found items
   const unlockedParts = foundItems.length
 
   useEffect(() => {
@@ -169,14 +170,12 @@ export default function Day3Page() {
       const timer = setTimeout(() => {
         setSelectedStory(STORY_PARTS[newlyUnlockedPart - 1])
         setNewlyUnlockedPart(null)
-        // Start 30 second countdown when story opens
         setAudioCountdown(30)
       }, 300)
       return () => clearTimeout(timer)
     }
   }, [newlyUnlockedPart])
 
-  // Countdown timer for audio
   useEffect(() => {
     if (audioCountdown > 0 && selectedStory) {
       const timer = setTimeout(() => {
@@ -186,7 +185,6 @@ export default function Day3Page() {
     }
   }, [audioCountdown, selectedStory])
 
-  // Reset countdown when story closes
   useEffect(() => {
     if (!selectedStory) {
       setAudioCountdown(0)
@@ -208,7 +206,6 @@ export default function Day3Page() {
           setTimeout(() => {
             setShowConfetti(true)
             setShowGoodyBag(true)
-            // Hide confetti after animation
             setTimeout(() => setShowConfetti(false), 3000)
           }, 1500)
         }
@@ -257,7 +254,6 @@ export default function Day3Page() {
     setIsDragging(false)
   }
 
-  // Touch event handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0]
     setIsDragging(true)
@@ -266,7 +262,7 @@ export default function Day3Page() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return
-    e.preventDefault() // Prevent scrolling while dragging
+    e.preventDefault()
 
     const touch = e.touches[0]
     const dx = (dragStart.x - touch.clientX) * 0.15
@@ -287,7 +283,6 @@ export default function Day3Page() {
   const handleStoryClick = (partIndex: number) => {
     if (partIndex < unlockedParts) {
       setSelectedStory(STORY_PARTS[partIndex])
-      // Start 30 second countdown when story opens
       setAudioCountdown(30)
     }
   }
@@ -315,7 +310,7 @@ export default function Day3Page() {
   const hintAngle = getHintDirection()
 
   return (
-    <div className="h-screen w-screen overflow-hidden relative bg-[#4CAF50]">
+    <div className="h-screen w-screen overflow-hidden relative bg-[#3B9FD8]">
       {/* Border overlay */}
       <div className="absolute inset-0 pointer-events-none z-10">
         <Image src="/images/border.png" alt="LEGO border" fill className="object-cover" />
@@ -323,7 +318,7 @@ export default function Day3Page() {
 
       {/* Day title */}
       <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg">
-        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 3: The Empty Tomb</h1>
+        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 1: Jesus Arrives in Jerusalem</h1>
       </div>
 
       <Link
@@ -419,7 +414,7 @@ export default function Day3Page() {
         >
           <Image
             src="/images/background-20-20scrolling-20image.jpeg"
-            alt="Empty Tomb Scene"
+            alt="Jesus Arrives in Jerusalem Scene"
             fill
             className="object-cover scale-150"
             priority
@@ -431,7 +426,6 @@ export default function Day3Page() {
               key={item.id}
               onClick={(e) => handleItemClick(item.id, e)}
               onTouchStart={(e) => {
-                // Prevent triggering drag when tapping items
                 e.stopPropagation()
               }}
               className={`
@@ -573,7 +567,6 @@ export default function Day3Page() {
 
             <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg mb-4">{selectedStory.text}</p>
 
-            {/* Audio countdown indicator */}
             {audioCountdown > 0 && (
               <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                 <div className="flex items-center justify-center gap-2 mb-2">
@@ -793,7 +786,7 @@ export default function Day3Page() {
               </div>
             )}
 
-            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"He is not here; He has risen!"}</p>
+            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"Hosanna to the Son of David!"}</p>
 
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button

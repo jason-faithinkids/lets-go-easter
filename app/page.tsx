@@ -27,22 +27,10 @@ export default function HomePage() {
           {[1, 2, 3].map((day) => (
             <Link
               key={day}
-              href={day === 3 ? "/day-3" : "#"}
-              className={`
-                relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all transform active:scale-95 sm:hover:scale-105 touch-manipulation
-                ${
-                  day === 3
-                    ? "bg-[#4CAF50] text-white shadow-lg hover:bg-[#45a049] cursor-pointer"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
-                }
-              `}
+              href={`/day-${day}`}
+              className="relative px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all transform active:scale-95 sm:hover:scale-105 touch-manipulation bg-[#4CAF50] text-white shadow-lg hover:bg-[#45a049] cursor-pointer"
             >
               <span className="drop-shadow-md">Day {day}</span>
-              {day === 3 && (
-                <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 bg-yellow-400 text-yellow-900 text-[10px] sm:text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full font-bold animate-pulse">
-                  NEW!
-                </span>
-              )}
             </Link>
           ))}
         </div>

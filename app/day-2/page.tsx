@@ -33,25 +33,25 @@ const ITEMS = [
     id: 1,
     name: "Cross",
     image: "/images/item-201.png",
-    position: { x: 20, y: 15 }, // On the crosses at top
+    position: { x: 25, y: 25 },
   },
   {
     id: 2,
-    name: "Green Brick",
+    name: "Nails",
     image: "/images/item-202.png",
-    position: { x: 70, y: 75 }, // In the grass area
+    position: { x: 55, y: 45 },
   },
   {
     id: 3,
-    name: "Burial Cloths",
+    name: "Crown of Thorns",
     image: "/images/item-203.png",
-    position: { x: 45, y: 50 }, // Near the tomb entrance
+    position: { x: 75, y: 20 },
   },
   {
     id: 4,
-    name: "Golden Cross",
+    name: "Soldier",
     image: "/images/item-201.png",
-    position: { x: 85, y: 30 },
+    position: { x: 40, y: 65 },
   },
 ]
 
@@ -60,100 +60,99 @@ const STORY_PARTS = [
   {
     id: 1,
     title: "Part 1",
-    verse: "Matthew 28:1-10",
-    text: "The day after the Sabbath day was the first day of the week. At dawn on the first day, Mary Magdalene and another woman named Mary went to look at the tomb.",
+    verse: "Matthew 27:32-44",
+    text: "As they were going out, they met a man from Cyrene, named Simon, and they forced him to carry the cross. They came to a place called Golgotha (which means 'the place of the skull').",
   },
   {
     id: 2,
     title: "Part 2",
-    verse: "Matthew 28:1-10",
-    text: "At that time there was a strong earthquake. An angel of the Lord came down from heaven. The angel went to the tomb and rolled the stone away from the entrance. Then he sat on the stone. He was shining as bright as lightning. His clothes were white as snow. The soldiers guarding the tomb were very frightened of the angel. They shook with fear and then became like dead men.",
+    verse: "Matthew 27:32-44",
+    text: "There they offered Jesus wine to drink, mixed with gall; but after tasting it, he refused to drink it. When they had crucified him, they divided up his clothes by casting lots.",
   },
   {
     id: 3,
     title: "Part 3",
-    verse: "Matthew 28:1-10",
-    text: 'The angel said to the women, "Don\'t be afraid. I know that you are looking for Jesus, the one who was killed on the cross. But he is not here. He has risen from death as he said he would. Come and see the place where his body was. And go quickly and tell his followers. Say to them: \'Jesus has risen from death. He is going into Galilee. He will be there before you. You will see him there.\'" Then the angel said, "Now I have told you."',
+    verse: "Matthew 27:32-44",
+    text: "Above his head they placed the written charge against him: THIS IS JESUS, THE KING OF THE JEWS. Two rebels were crucified with him, one on his right and one on his left.",
   },
   {
     id: 4,
     title: "Part 4",
-    verse: "Matthew 28:1-10",
-    text: 'The women left the tomb quickly. They were afraid, but they were also very happy. They ran to tell Jesus\' followers what had happened. Suddenly, Jesus met them and said, "Greetings." The women came up to Jesus, took hold of his feet, and worshiped him. Then Jesus said to them, "Don\'t be afraid. Go and tell my brothers to go on to Galilee. They will see me there."',
+    verse: "Matthew 27:54",
+    text: "The army officer and the soldiers guarding Jesus saw this earthquake and everything else that happened. They were very frightened and said, 'He really was the Son of God!'",
   },
 ]
 
-// Goody bag activities for Day 3
+// Goody bag activities for Day 2
 const GOODY_BAG_ITEMS = [
   {
     id: "watch",
     icon: Clapperboard,
     label: "Watch",
-    content: "Watch The Easter Story Lego video from 3 min 36 secs to the end.",
-    embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=216&si=IkxmVHHvt4JnoAGg",
+    content: "Watch The Easter Story Lego video from 1 min 37 secs to 3 min 35 secs.",
+    embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=97&end=215&si=IkxmVHHvt4JnoAGg",
   },
   {
     id: "build",
     icon: Blocks,
     label: "Build",
-    content:
-      "A stone was rolled in front of the tomb to seal it. Can you make a Lego stone and test how well it rolls?",
+    content: "Jesus was put to death on a cross. Can you make a cross out of Lego? How big can you make it?",
   },
   {
     id: "colour",
     icon: Palette,
     label: "Colour",
-    content: "Colour in the picture of the angel and women in front of the empty tomb.",
-    download: "Colouring Jesus' resurrection.pdf",
-    downloadUrl: "/images/Colouring Jesus' resurrection.pdf",
+    content: "Colour in the picture of Jesus on the cross.",
+    download: "Colouring Jesus' death.pdf",
+    downloadUrl: "/images/Colouring Jesus' death.pdf",
   },
   {
     id: "craft",
     icon: Scissors,
     label: "Craft",
     content:
-      "Angel craft. You will need: a copy of the printout, scissors, glue and colouring pens (optional: foil, glitter). Colour in the angel and cut it out. Then design some angel wing shapes on the Lego board before cutting them out to stick behind the angel.",
-    download: "Angel craft.pdf",
-    downloadUrl: "/images/Angel craft.pdf",
+      "Build a brick cross. You will need: a copy of the printout, scissors, glue and colouring pens. Colour in the bricks, then cut them out and stick them onto the cross.",
+    download: "Build a brick cross.pdf",
+    downloadUrl: "/images/Build a brick cross.pdf",
   },
   {
     id: "food",
     icon: CookingPot,
     label: "Food",
     content:
-      "Make a tomb out of toast, using jam to stick the pieces together. Cut one piece of toast into a circle to be the stone and have it rolled to one side to see that the tomb is empty.",
+      "Make three crosses out of bread sticks. Stick each cross together with cream cheese. Stick the crosses into a tub of cream cheese so that they can stand up.",
   },
   {
     id: "listen",
     icon: Ear,
     label: "Listen",
-    content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
+    content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened the day Jesus died on the cross. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: "https://faithinkids.org",
   },
   {
     id: "discuss",
     icon: MessageCircle,
     label: "Discuss",
-    content: `Bible verse: "The angel said to the women, 'Don't be afraid. I know that you are looking for Jesus, the one who was killed on the cross. But he is not here. He has risen from death as he said he would. Come and see the place where his body was.'" (Matthew 28:5-6)
+    content: `Bible verse: "The army officer and the soldiers guarding Jesus saw this earthquake and everything else that happened. They were very frightened and said, 'He really was the Son of God!'" (Matthew 27:54)
 
 Use the picture and the verse to answer the following questions:
-• Who is in this picture?
-• What did the women see in the tomb?
-• Why wasn't Jesus in the tomb?
+• Who is in the picture?
+• Jesus is God's promised king. Does he look like a king here? Why / why not?
+• Why do you think the soldiers were frightened?
 
-A prayer to pray: Dear God, thank you for the good news that King Jesus didn't stay dead but was raised back to life. Amen.`,
-    image: "/images/Angel at the tomb Sun morning Image 1.jpeg",
+A prayer to pray: Dear God, thank you that the soldiers clearly saw that Jesus was the Son of God. Please help us to live trusting this. Amen.`,
+    image: "/images/Jesus on the cross Image 1.jpeg",
   },
 ]
 
-export default function Day3Page() {
+export default function Day2Page() {
   const [foundItems, setFoundItems] = useState<number[]>([])
   const [panPosition, setPanPosition] = useState({ x: 50, y: 50 })
   const [selectedStory, setSelectedStory] = useState<(typeof STORY_PARTS)[0] | null>(null)
   const [showHelp, setShowHelp] = useState(false)
-  const [showGoodyBag, setShowGoodyBag] = useState(false) // renamed from showComplete
+  const [showGoodyBag, setShowGoodyBag] = useState(false)
   const [hintItemId, setHintItemId] = useState<number | null>(null)
-  const [activeGoodyItem, setActiveGoodyItem] = useState<string | null>(null) // track which goody bag item is expanded
+  const [activeGoodyItem, setActiveGoodyItem] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [newlyUnlockedPart, setNewlyUnlockedPart] = useState<number | null>(null)
@@ -161,7 +160,6 @@ export default function Day3Page() {
   const [showConfetti, setShowConfetti] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Calculate unlocked story parts based on found items
   const unlockedParts = foundItems.length
 
   useEffect(() => {
@@ -169,14 +167,12 @@ export default function Day3Page() {
       const timer = setTimeout(() => {
         setSelectedStory(STORY_PARTS[newlyUnlockedPart - 1])
         setNewlyUnlockedPart(null)
-        // Start 30 second countdown when story opens
         setAudioCountdown(30)
       }, 300)
       return () => clearTimeout(timer)
     }
   }, [newlyUnlockedPart])
 
-  // Countdown timer for audio
   useEffect(() => {
     if (audioCountdown > 0 && selectedStory) {
       const timer = setTimeout(() => {
@@ -186,7 +182,6 @@ export default function Day3Page() {
     }
   }, [audioCountdown, selectedStory])
 
-  // Reset countdown when story closes
   useEffect(() => {
     if (!selectedStory) {
       setAudioCountdown(0)
@@ -208,7 +203,6 @@ export default function Day3Page() {
           setTimeout(() => {
             setShowConfetti(true)
             setShowGoodyBag(true)
-            // Hide confetti after animation
             setTimeout(() => setShowConfetti(false), 3000)
           }, 1500)
         }
@@ -257,7 +251,6 @@ export default function Day3Page() {
     setIsDragging(false)
   }
 
-  // Touch event handlers for mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0]
     setIsDragging(true)
@@ -266,7 +259,7 @@ export default function Day3Page() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return
-    e.preventDefault() // Prevent scrolling while dragging
+    e.preventDefault()
 
     const touch = e.touches[0]
     const dx = (dragStart.x - touch.clientX) * 0.15
@@ -287,7 +280,6 @@ export default function Day3Page() {
   const handleStoryClick = (partIndex: number) => {
     if (partIndex < unlockedParts) {
       setSelectedStory(STORY_PARTS[partIndex])
-      // Start 30 second countdown when story opens
       setAudioCountdown(30)
     }
   }
@@ -315,7 +307,7 @@ export default function Day3Page() {
   const hintAngle = getHintDirection()
 
   return (
-    <div className="h-screen w-screen overflow-hidden relative bg-[#4CAF50]">
+    <div className="h-screen w-screen overflow-hidden relative bg-[#8B4513]">
       {/* Border overlay */}
       <div className="absolute inset-0 pointer-events-none z-10">
         <Image src="/images/border.png" alt="LEGO border" fill className="object-cover" />
@@ -323,7 +315,7 @@ export default function Day3Page() {
 
       {/* Day title */}
       <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg">
-        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 3: The Empty Tomb</h1>
+        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 2: Jesus on the Cross</h1>
       </div>
 
       <Link
@@ -419,7 +411,7 @@ export default function Day3Page() {
         >
           <Image
             src="/images/background-20-20scrolling-20image.jpeg"
-            alt="Empty Tomb Scene"
+            alt="Jesus on the Cross Scene"
             fill
             className="object-cover scale-150"
             priority
@@ -431,7 +423,6 @@ export default function Day3Page() {
               key={item.id}
               onClick={(e) => handleItemClick(item.id, e)}
               onTouchStart={(e) => {
-                // Prevent triggering drag when tapping items
                 e.stopPropagation()
               }}
               className={`
@@ -549,7 +540,7 @@ export default function Day3Page() {
         </button>
       </div>
 
-      {/* Story Modal */}
+      {/* Story Modal - same as Day 1 */}
       {selectedStory && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 sm:p-6">
           <div className="bg-white rounded-2xl max-w-lg w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -573,7 +564,6 @@ export default function Day3Page() {
 
             <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg mb-4">{selectedStory.text}</p>
 
-            {/* Audio countdown indicator */}
             {audioCountdown > 0 && (
               <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                 <div className="flex items-center justify-center gap-2 mb-2">
@@ -606,7 +596,7 @@ export default function Day3Page() {
         </div>
       )}
 
-      {/* Help Modal */}
+      {/* Help Modal - same as Day 1 */}
       {showHelp && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 sm:p-6">
           <div className="bg-white rounded-2xl max-w-md w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -684,7 +674,7 @@ export default function Day3Page() {
         </div>
       )}
 
-      {/* Goody Bag Modal */}
+      {/* Goody Bag Modal - same structure as Day 1 but with Day 2 content */}
       {showGoodyBag && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -793,7 +783,7 @@ export default function Day3Page() {
               </div>
             )}
 
-            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"He is not here; He has risen!"}</p>
+            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"He really was the Son of God!"}</p>
 
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <button
