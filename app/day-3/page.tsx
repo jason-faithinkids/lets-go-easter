@@ -60,26 +60,30 @@ const STORY_PARTS = [
   {
     id: 1,
     title: "Part 1",
-    verse: "Matthew 28:1-10",
+    verse: "Matthew 28:1",
     text: "The day after the Sabbath day was the first day of the week. At dawn on the first day, Mary Magdalene and another woman named Mary went to look at the tomb.",
+    audio: "/audio/Day 3 - p1.mp3",
   },
   {
     id: 2,
     title: "Part 2",
-    verse: "Matthew 28:1-10",
+    verse: "Matthew 28:2-4",
     text: "At that time there was a strong earthquake. An angel of the Lord came down from heaven. The angel went to the tomb and rolled the stone away from the entrance. Then he sat on the stone. He was shining as bright as lightning. His clothes were white as snow. The soldiers guarding the tomb were very frightened of the angel. They shook with fear and then became like dead men.",
+    audio: "/audio/Day 3 - p2.mp3",
   },
   {
     id: 3,
     title: "Part 3",
-    verse: "Matthew 28:1-10",
+    verse: "Matthew 28:5-7",
     text: 'The angel said to the women, "Don\'t be afraid. I know that you are looking for Jesus, the one who was killed on the cross. But he is not here. He has risen from death as he said he would. Come and see the place where his body was. And go quickly and tell his followers. Say to them: \'Jesus has risen from death. He is going into Galilee. He will be there before you. You will see him there.\'" Then the angel said, "Now I have told you."',
+    audio: "/audio/Day 3 - p3.mp3",
   },
   {
     id: 4,
     title: "Part 4",
-    verse: "Matthew 28:1-10",
+    verse: "Matthew 28:8-10",
     text: 'The women left the tomb quickly. They were afraid, but they were also very happy. They ran to tell Jesus\' followers what had happened. Suddenly, Jesus met them and said, "Greetings." The women came up to Jesus, took hold of his feet, and worshiped him. Then Jesus said to them, "Don\'t be afraid. Go and tell my brothers to go on to Galilee. They will see me there."',
+    audio: "/audio/Day 3 - p4.mp3",
   },
 ]
 
@@ -159,6 +163,9 @@ export default function Day3Page() {
   const [newlyUnlockedPart, setNewlyUnlockedPart] = useState<number | null>(null)
   const [audioCountdown, setAudioCountdown] = useState<number>(0)
   const [showConfetti, setShowConfetti] = useState(false)
+  const [audioDuration, setAudioDuration] = useState<number>(30)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Calculate unlocked story parts based on found items
@@ -169,27 +176,77 @@ export default function Day3Page() {
       const timer = setTimeout(() => {
         setSelectedStory(STORY_PARTS[newlyUnlockedPart - 1])
         setNewlyUnlockedPart(null)
-        // Start 30 second countdown when story opens
-        setAudioCountdown(30)
       }, 300)
       return () => clearTimeout(timer)
     }
   }, [newlyUnlockedPart])
 
+  // Handle audio loading and playback
+  useEffect(() => {
+    if (selectedStory && selectedStory.audio) {
+      const audio = new Audio(selectedStory.audio)
+      audioRef.current = audio
+
+      audio.addEventListener("loadedmetadata", () => {
+        const duration = Math.ceil(audio.duration)
+        setAudioDuration(duration)
+        setAudioCountdown(duration)
+      })
+
+      audio.addEventListener("play", () => {
+        setIsPlaying(true)
+      })
+
+      audio.addEventListener("pause", () => {
+        setIsPlaying(false)
+      })
+
+      audio.addEventListener("ended", () => {
+        setIsPlaying(false)
+        setAudioCountdown(0)
+      })
+
+      // Auto-play audio
+      audio.play().catch((error) => {
+        console.error("Error playing audio:", error)
+      })
+
+      return () => {
+        audio.pause()
+        audio.removeEventListener("loadedmetadata", () => {})
+        audio.removeEventListener("play", () => {})
+        audio.removeEventListener("pause", () => {})
+        audio.removeEventListener("ended", () => {})
+      }
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+      setAudioCountdown(0)
+      setIsPlaying(false)
+    }
+  }, [selectedStory])
+
   // Countdown timer for audio
   useEffect(() => {
-    if (audioCountdown > 0 && selectedStory) {
+    if (audioCountdown > 0 && selectedStory && isPlaying) {
       const timer = setTimeout(() => {
         setAudioCountdown(audioCountdown - 1)
       }, 1000)
       return () => clearTimeout(timer)
     }
-  }, [audioCountdown, selectedStory])
+  }, [audioCountdown, selectedStory, isPlaying])
 
-  // Reset countdown when story closes
+  // Reset when story closes
   useEffect(() => {
     if (!selectedStory) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
       setAudioCountdown(0)
+      setIsPlaying(false)
     }
   }, [selectedStory])
 
@@ -573,20 +630,52 @@ export default function Day3Page() {
 
             <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg mb-4">{selectedStory.text}</p>
 
-            {/* Audio countdown indicator */}
-            {audioCountdown > 0 && (
+            {/* Audio player */}
+            {selectedStory.audio && (
               <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Volume2 className="w-4 h-4 text-yellow-600 animate-pulse" />
+                  <Volume2 className={`w-4 h-4 text-yellow-600 ${isPlaying ? "animate-pulse" : ""}`} />
                   <p className="text-sm font-medium text-yellow-800">
-                    Please listen to the audio ({audioCountdown}s remaining)
+                    {isPlaying
+                      ? `Playing audio... (${audioCountdown}s remaining)`
+                      : audioCountdown > 0
+                        ? `Please listen to the audio (${audioCountdown}s remaining)`
+                        : "Audio ready"}
                   </p>
                 </div>
-                <div className="w-full bg-yellow-200 rounded-full h-2">
-                  <div
-                    className="bg-yellow-500 h-2 rounded-full transition-all duration-1000"
-                    style={{ width: `${((30 - audioCountdown) / 30) * 100}%` }}
-                  />
+                {audioDuration > 0 && (
+                  <div className="w-full bg-yellow-200 rounded-full h-2 mb-2">
+                    <div
+                      className="bg-yellow-500 h-2 rounded-full transition-all duration-1000"
+                      style={{ width: `${((audioDuration - audioCountdown) / audioDuration) * 100}%` }}
+                    />
+                  </div>
+                )}
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => {
+                      if (audioRef.current) {
+                        if (isPlaying) {
+                          audioRef.current.pause()
+                        } else {
+                          audioRef.current.play()
+                        }
+                      }
+                    }}
+                    className="bg-[#4CAF50] text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation flex items-center gap-2"
+                  >
+                    {isPlaying ? (
+                      <>
+                        <X className="w-4 h-4" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-4 h-4" />
+                        Play Audio
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             )}
