@@ -184,39 +184,67 @@ export default function Day3Page() {
   // Handle audio loading and playback
   useEffect(() => {
     if (selectedStory && selectedStory.audio) {
+      // Clean up previous audio
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+
       const audio = new Audio(selectedStory.audio)
       audioRef.current = audio
 
-      audio.addEventListener("loadedmetadata", () => {
+      const handleLoadedMetadata = () => {
         const duration = Math.ceil(audio.duration)
         setAudioDuration(duration)
         setAudioCountdown(duration)
-      })
+      }
 
-      audio.addEventListener("play", () => {
+      const handlePlay = () => {
         setIsPlaying(true)
-      })
+      }
 
-      audio.addEventListener("pause", () => {
+      const handlePause = () => {
         setIsPlaying(false)
-      })
+      }
 
-      audio.addEventListener("ended", () => {
+      const handleEnded = () => {
         setIsPlaying(false)
         setAudioCountdown(0)
-      })
+      }
 
-      // Auto-play audio
-      audio.play().catch((error) => {
-        console.error("Error playing audio:", error)
+      const handleTimeUpdate = () => {
+        if (audio.duration && !isNaN(audio.duration)) {
+          const remaining = Math.ceil(audio.duration - audio.currentTime)
+          setAudioCountdown(Math.max(0, remaining))
+        }
+      }
+
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+      audio.addEventListener("play", handlePlay)
+      audio.addEventListener("pause", handlePause)
+      audio.addEventListener("ended", handleEnded)
+      audio.addEventListener("timeupdate", handleTimeUpdate)
+
+      // Load and get duration
+      audio.load()
+
+      // Auto-play audio when ready
+      audio.addEventListener("canplay", () => {
+        audio.play().catch((error) => {
+          console.error("Error playing audio:", error)
+          // If autoplay fails, user can click play button
+        })
       })
 
       return () => {
+        audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
+        audio.removeEventListener("play", handlePlay)
+        audio.removeEventListener("pause", handlePause)
+        audio.removeEventListener("ended", handleEnded)
+        audio.removeEventListener("timeupdate", handleTimeUpdate)
+        audio.removeEventListener("canplay", () => {})
         audio.pause()
-        audio.removeEventListener("loadedmetadata", () => {})
-        audio.removeEventListener("play", () => {})
-        audio.removeEventListener("pause", () => {})
-        audio.removeEventListener("ended", () => {})
+        audioRef.current = null
       }
     } else {
       if (audioRef.current) {
@@ -225,18 +253,11 @@ export default function Day3Page() {
       }
       setAudioCountdown(0)
       setIsPlaying(false)
+      setAudioDuration(30)
     }
   }, [selectedStory])
 
-  // Countdown timer for audio
-  useEffect(() => {
-    if (audioCountdown > 0 && selectedStory && isPlaying) {
-      const timer = setTimeout(() => {
-        setAudioCountdown(audioCountdown - 1)
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [audioCountdown, selectedStory, isPlaying])
+  // Countdown is now handled by timeupdate event in audio player
 
   // Reset when story closes
   useEffect(() => {
