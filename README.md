@@ -84,6 +84,12 @@ npm run build
 npm start
 ```
 
+### Deployment (Vercel + GitHub)
+
+1. **Connect to Vercel**: In the [Vercel dashboard](https://vercel.com), import the GitHub repo `jason-faithinkids/lets-go-easter`. Use the default settings (Next.js, `npm run build`, `npm start`).
+2. **Deploy**: Pushing to `main` triggers a new deployment. Your production URL will be something like `https://lets-go-easter.vercel.app`.
+3. **Production behaviour**: The game (Days 1–3, story, goody bag, audio) works in production. Admin at `/admin` and config/upload APIs use the local filesystem; on Vercel the filesystem is read-only, so **saving settings and uploading images in production won’t persist**. The site will use defaults (plain background, default Listen URLs, default findable items). For persistent admin in production you’d add something like Vercel Blob (uploads) and Vercel KV or a database (config).
+
 ### Generating story audio (optional)
 
 To generate narrated story audio with ElevenLabs (e.g. for Days 1 and 2):
