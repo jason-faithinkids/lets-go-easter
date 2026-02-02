@@ -31,6 +31,7 @@ import type { SiteConfig } from "@/lib/config"
 
 const DEFAULT_LISTEN_URL = "https://faithinkids.org"
 const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
+const DEFAULT_DAY3_BACKGROUND = "/images/day-3-default-bg.png"
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
@@ -166,7 +167,11 @@ export default function Day3Page() {
       ? { ...item, link: config?.listenUrlDay3 ?? DEFAULT_LISTEN_URL }
       : item
   )
-  const backgroundImageUrl = config?.backgroundDay3 ? `/uploads/${config.backgroundDay3}` : null
+  const backgroundImageUrl = config?.backgroundDay3
+    ? config.backgroundDay3.startsWith("http")
+      ? config.backgroundDay3
+      : `/uploads/${config.backgroundDay3}`
+    : DEFAULT_DAY3_BACKGROUND
   const items = (config?.itemsDay3 && config.itemsDay3.length > 0 ? config.itemsDay3 : DEFAULT_ITEMS) as typeof DEFAULT_ITEMS
 
   const unlockedParts = foundItems.length

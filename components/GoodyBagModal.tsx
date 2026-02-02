@@ -1,8 +1,9 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { X, Gift } from "lucide-react"
+import { X, Gift, FileText } from "lucide-react"
 import type { GoodyBagItem } from "@/lib/types"
 
 const DEFAULT_INTRO =
@@ -27,6 +28,12 @@ export function GoodyBagModal({
   activeItem,
   onActiveItemChange,
 }: GoodyBagModalProps) {
+  const [failedPreviewUrl, setFailedPreviewUrl] = useState<string | null>(null)
+
+  useEffect(() => {
+    setFailedPreviewUrl(null)
+  }, [activeItem])
+
   if (!open) return null
 
   return (
@@ -106,12 +113,20 @@ export function GoodyBagModal({
                     </div>
                   )}
                   {!item.image && item.downloadUrl?.toLowerCase().endsWith(".pdf") && (
-                    <div className="mb-3 rounded-lg overflow-hidden bg-gray-100">
-                      <img
-                        src={`/api/preview-pdf?url=${encodeURIComponent(item.downloadUrl)}`}
-                        alt={`Preview: ${item.label}`}
-                        className="w-full h-auto object-contain max-h-64"
-                      />
+                    <div className="mb-3 rounded-lg overflow-hidden bg-gray-100 min-h-[120px] flex items-center justify-center">
+                      {failedPreviewUrl === item.downloadUrl ? (
+                        <div className="flex flex-col items-center gap-2 py-6 text-gray-500 text-sm">
+                          <FileText className="w-10 h-10" />
+                          <span>Preview unavailable</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={`/api/preview-pdf?url=${encodeURIComponent(item.downloadUrl)}`}
+                          alt={`Preview: ${item.label}`}
+                          className="w-full h-auto object-contain max-h-64"
+                          onError={() => setFailedPreviewUrl(item.downloadUrl!)}
+                        />
+                      )}
                     </div>
                   )}
                   <div className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">

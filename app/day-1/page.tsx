@@ -175,7 +175,11 @@ export default function Day1Page() {
       ? { ...item, link: config?.listenUrlDay1 ?? DEFAULT_LISTEN_URL }
       : item
   )
-  const backgroundImageUrl = config?.backgroundDay1 ? `/uploads/${config.backgroundDay1}` : null
+  const backgroundImageUrl = config?.backgroundDay1
+    ? config.backgroundDay1.startsWith("http")
+      ? config.backgroundDay1
+      : `/uploads/${config.backgroundDay1}`
+    : null
   const items = (config?.itemsDay1 && config.itemsDay1.length > 0 ? config.itemsDay1 : DEFAULT_ITEMS) as typeof DEFAULT_ITEMS
 
   const unlockedParts = foundItems.length

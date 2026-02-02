@@ -45,6 +45,9 @@ export default function AdminPage() {
   const [backgroundDay1, setBackgroundDay1] = useState("")
   const [backgroundDay2, setBackgroundDay2] = useState("")
   const [backgroundDay3, setBackgroundDay3] = useState("")
+  const [backgroundUrlDay1, setBackgroundUrlDay1] = useState("")
+  const [backgroundUrlDay2, setBackgroundUrlDay2] = useState("")
+  const [backgroundUrlDay3, setBackgroundUrlDay3] = useState("")
   const [itemsDay1, setItemsDay1] = useState<FindableItem[]>(DEFAULT_ITEMS_DAY1)
   const [itemsDay2, setItemsDay2] = useState<FindableItem[]>(DEFAULT_ITEMS_DAY2)
   const [itemsDay3, setItemsDay3] = useState<FindableItem[]>(DEFAULT_ITEMS_DAY3)
@@ -61,9 +64,15 @@ export default function AdminPage() {
       setListenUrlDay1(c.listenUrlDay1 ?? "")
       setListenUrlDay2(c.listenUrlDay2 ?? "")
       setListenUrlDay3(c.listenUrlDay3 ?? "")
-      setBackgroundDay1(c.backgroundDay1 ?? "")
-      setBackgroundDay2(c.backgroundDay2 ?? "")
-      setBackgroundDay3(c.backgroundDay3 ?? "")
+      const bg1 = c.backgroundDay1 ?? ""
+      const bg2 = c.backgroundDay2 ?? ""
+      const bg3 = c.backgroundDay3 ?? ""
+      setBackgroundDay1(bg1.startsWith("http") ? "" : bg1)
+      setBackgroundDay2(bg2.startsWith("http") ? "" : bg2)
+      setBackgroundDay3(bg3.startsWith("http") ? "" : bg3)
+      setBackgroundUrlDay1(bg1.startsWith("http") ? bg1 : "")
+      setBackgroundUrlDay2(bg2.startsWith("http") ? bg2 : "")
+      setBackgroundUrlDay3(bg3.startsWith("http") ? bg3 : "")
       if (c.itemsDay1?.length) setItemsDay1(c.itemsDay1)
       if (c.itemsDay2?.length) setItemsDay2(c.itemsDay2)
       if (c.itemsDay3?.length) setItemsDay3(c.itemsDay3)
@@ -105,9 +114,9 @@ export default function AdminPage() {
           listenUrlDay1: listenUrlDay1 || null,
           listenUrlDay2: listenUrlDay2 || null,
           listenUrlDay3: listenUrlDay3 || null,
-          backgroundDay1: backgroundDay1 || null,
-          backgroundDay2: backgroundDay2 || null,
-          backgroundDay3: backgroundDay3 || null,
+          backgroundDay1: (backgroundUrlDay1 || backgroundDay1) || null,
+          backgroundDay2: (backgroundUrlDay2 || backgroundDay2) || null,
+          backgroundDay3: (backgroundUrlDay3 || backgroundDay3) || null,
           itemsDay1,
           itemsDay2,
           itemsDay3,
@@ -286,7 +295,7 @@ export default function AdminPage() {
               Scene backgrounds
             </CardTitle>
             <CardDescription>
-              Upload or choose a background image for each day. No selection shows a plain colour.
+              Upload an image, paste a direct image URL, or choose from your uploads. Use a link that points to an image file (e.g. ending in .jpg or .png), not a webpage. No selection shows a plain colour.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -317,26 +326,75 @@ export default function AdminPage() {
               {uploading && <span className="text-sm text-slate-500">Uploading…</span>}
             </div>
             <Separator />
-            <div className="grid gap-4 sm:grid-cols-3">
+            <div className="grid gap-6 sm:grid-cols-3">
               {[
-                { day: 1, value: backgroundDay1, set: setBackgroundDay1 },
-                { day: 2, value: backgroundDay2, set: setBackgroundDay2 },
-                { day: 3, value: backgroundDay3, set: setBackgroundDay3 },
-              ].map(({ day, value, set }) => (
-                <div key={day} className="space-y-2">
-                  <Label>Day {day} background</Label>
-                  <select
-                    value={value}
-                    onChange={(e) => set(e.target.value)}
-                    className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
-                  >
-                    <option value="">Plain colour</option>
-                    {backgrounds.map((b) => (
-                      <option key={b.id} value={b.id}>
-                        {b.id}
-                      </option>
-                    ))}
-                  </select>
+                {
+                  day: 1,
+                  urlValue: backgroundUrlDay1,
+                  setUrl: (v: string) => {
+                    setBackgroundUrlDay1(v)
+                    if (v) setBackgroundDay1("")
+                  },
+                  fileValue: backgroundDay1,
+                  setFile: (v: string) => {
+                    setBackgroundDay1(v)
+                    if (v) setBackgroundUrlDay1("")
+                  },
+                },
+                {
+                  day: 2,
+                  urlValue: backgroundUrlDay2,
+                  setUrl: (v: string) => {
+                    setBackgroundUrlDay2(v)
+                    if (v) setBackgroundDay2("")
+                  },
+                  fileValue: backgroundDay2,
+                  setFile: (v: string) => {
+                    setBackgroundDay2(v)
+                    if (v) setBackgroundUrlDay2("")
+                  },
+                },
+                {
+                  day: 3,
+                  urlValue: backgroundUrlDay3,
+                  setUrl: (v: string) => {
+                    setBackgroundUrlDay3(v)
+                    if (v) setBackgroundDay3("")
+                  },
+                  fileValue: backgroundDay3,
+                  setFile: (v: string) => {
+                    setBackgroundDay3(v)
+                    if (v) setBackgroundUrlDay3("")
+                  },
+                },
+              ].map(({ day, urlValue, setUrl, fileValue, setFile }) => (
+                <div key={day} className="space-y-3 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
+                  <Label className="text-base font-medium">Day {day} background</Label>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-slate-500">Paste image URL</Label>
+                    <Input
+                      type="url"
+                      placeholder="https://…/image.jpg"
+                      value={urlValue}
+                      onChange={(e) => setUrl(e.target.value)}
+                      className="bg-white text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-slate-500">Or choose from uploads</Label>
+                    <select
+                      value={fileValue}
+                      onChange={(e) => setFile(e.target.value)}
+                      className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                    >
+                      <option value="">—</option>
+                      {backgrounds.map((b) => (
+                        <option key={b.id} value={b.id}>
+                          {b.id}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               ))}
             </div>
@@ -378,12 +436,22 @@ export default function AdminPage() {
                     className="bg-white"
                   />
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
+                  <div className="w-full sm:w-auto sm:min-w-[180px]">
+                    <Input
+                      type="url"
+                      placeholder="Or paste image URL"
+                      value={item.image.startsWith("http") ? item.image : ""}
+                      onChange={(e) => updateItem(1, index, { image: e.target.value })}
+                      className="h-9 rounded-md border border-slate-200 bg-white text-sm"
+                    />
+                  </div>
                   <select
-                    value={item.image}
+                    value={item.image.startsWith("http") ? "" : item.image}
                     onChange={(e) => updateItem(1, index, { image: e.target.value })}
                     className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
                   >
+                    <option value="">Select image</option>
                     {itemImages.map((opt) => (
                       <option key={opt.id} value={opt.id}>
                         {opt.label}
@@ -442,12 +510,22 @@ export default function AdminPage() {
                     className="bg-white"
                   />
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
+                  <div className="w-full sm:w-auto sm:min-w-[180px]">
+                    <Input
+                      type="url"
+                      placeholder="Or paste image URL"
+                      value={item.image.startsWith("http") ? item.image : ""}
+                      onChange={(e) => updateItem(2, index, { image: e.target.value })}
+                      className="h-9 rounded-md border border-slate-200 bg-white text-sm"
+                    />
+                  </div>
                   <select
-                    value={item.image}
+                    value={item.image.startsWith("http") ? "" : item.image}
                     onChange={(e) => updateItem(2, index, { image: e.target.value })}
                     className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
                   >
+                    <option value="">Select image</option>
                     {itemImages.map((opt) => (
                       <option key={opt.id} value={opt.id}>
                         {opt.label}
@@ -506,12 +584,22 @@ export default function AdminPage() {
                     className="bg-white"
                   />
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
+                  <div className="w-full sm:w-auto sm:min-w-[180px]">
+                    <Input
+                      type="url"
+                      placeholder="Or paste image URL"
+                      value={item.image.startsWith("http") ? item.image : ""}
+                      onChange={(e) => updateItem(3, index, { image: e.target.value })}
+                      className="h-9 rounded-md border border-slate-200 bg-white text-sm"
+                    />
+                  </div>
                   <select
-                    value={item.image}
+                    value={item.image.startsWith("http") ? "" : item.image}
                     onChange={(e) => updateItem(3, index, { image: e.target.value })}
                     className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
                   >
+                    <option value="">Select image</option>
                     {itemImages.map((opt) => (
                       <option key={opt.id} value={opt.id}>
                         {opt.label}
