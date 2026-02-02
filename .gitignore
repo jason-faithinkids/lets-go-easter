@@ -19,6 +19,9 @@ yarn-error.log*
 # env files
 .env*
 
+# local config (optional; remove to commit default config)
+/data/
+
 # vercel
 .vercel
 

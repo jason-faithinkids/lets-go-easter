@@ -26,33 +26,18 @@ import {
   Palette,
   Volume2,
 } from "lucide-react"
+import { GoodyBagModal } from "@/components/GoodyBagModal"
+import type { SiteConfig } from "@/lib/config"
 
-// Define the findable items with their actual positions on the background
-const ITEMS = [
-  {
-    id: 1,
-    name: "Cross",
-    image: "/images/item-201.png",
-    position: { x: 20, y: 15 }, // On the crosses at top
-  },
-  {
-    id: 2,
-    name: "Green Brick",
-    image: "/images/item-202.png",
-    position: { x: 70, y: 75 }, // In the grass area
-  },
-  {
-    id: 3,
-    name: "Burial Cloths",
-    image: "/images/item-203.png",
-    position: { x: 45, y: 50 }, // Near the tomb entrance
-  },
-  {
-    id: 4,
-    name: "Golden Cross",
-    image: "/images/item-201.png",
-    position: { x: 85, y: 30 },
-  },
+const DEFAULT_LISTEN_URL = "https://faithinkids.org"
+const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
+
+// Default findable items (used when config has no overrides)
+const DEFAULT_ITEMS = [
+  { id: 1, name: "Cross", image: "/images/item-201.png", position: { x: 20, y: 15 } },
+  { id: 2, name: "Green Brick", image: "/images/item-202.png", position: { x: 70, y: 75 } },
+  { id: 3, name: "Burial Cloths", image: "/images/item-203.png", position: { x: 45, y: 50 } },
+  { id: 4, name: "Golden Cross", image: "/images/item-201.png", position: { x: 85, y: 30 } },
 ]
 
 // Story parts with Bible text
@@ -132,7 +117,7 @@ const GOODY_BAG_ITEMS = [
     icon: Ear,
     label: "Listen",
     content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
-    link: "https://faithinkids.org",
+    link: DEFAULT_LISTEN_URL,
   },
   {
     id: "discuss",
@@ -151,13 +136,14 @@ A prayer to pray: Dear God, thank you for the good news that King Jesus didn't s
 ]
 
 export default function Day3Page() {
+  const [config, setConfig] = useState<SiteConfig | null>(null)
   const [foundItems, setFoundItems] = useState<number[]>([])
   const [panPosition, setPanPosition] = useState({ x: 50, y: 50 })
   const [selectedStory, setSelectedStory] = useState<(typeof STORY_PARTS)[0] | null>(null)
   const [showHelp, setShowHelp] = useState(false)
-  const [showGoodyBag, setShowGoodyBag] = useState(false) // renamed from showComplete
+  const [showGoodyBag, setShowGoodyBag] = useState(false)
   const [hintItemId, setHintItemId] = useState<number | null>(null)
-  const [activeGoodyItem, setActiveGoodyItem] = useState<string | null>(null) // track which goody bag item is expanded
+  const [activeGoodyItem, setActiveGoodyItem] = useState<string | null>(null)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
   const [newlyUnlockedPart, setNewlyUnlockedPart] = useState<number | null>(null)
@@ -168,7 +154,21 @@ export default function Day3Page() {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Calculate unlocked story parts based on found items
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then(setConfig)
+      .catch(() => setConfig(null))
+  }, [])
+
+  const goodyBagItems = GOODY_BAG_ITEMS.map((item) =>
+    item.id === "listen"
+      ? { ...item, link: config?.listenUrlDay3 ?? DEFAULT_LISTEN_URL }
+      : item
+  )
+  const backgroundImageUrl = config?.backgroundDay3 ? `/uploads/${config.backgroundDay3}` : null
+  const items = (config?.itemsDay3 && config.itemsDay3.length > 0 ? config.itemsDay3 : DEFAULT_ITEMS) as typeof DEFAULT_ITEMS
+
   const unlockedParts = foundItems.length
 
   useEffect(() => {
@@ -282,7 +282,7 @@ export default function Day3Page() {
           setHintItemId(null)
         }
 
-        if (newFoundItems.length === ITEMS.length) {
+        if (newFoundItems.length === items.length) {
           setTimeout(() => {
             setShowConfetti(true)
             setShowGoodyBag(true)
@@ -371,7 +371,7 @@ export default function Day3Page() {
   }
 
   const handleHint = () => {
-    const unfoundItems = ITEMS.filter((item) => !foundItems.includes(item.id))
+    const unfoundItems = items.filter((item) => !foundItems.includes(item.id))
     if (unfoundItems.length > 0) {
       const randomItem = unfoundItems[Math.floor(Math.random() * unfoundItems.length)]
       setHintItemId(randomItem.id)
@@ -381,7 +381,7 @@ export default function Day3Page() {
 
   const getHintDirection = () => {
     if (!hintItemId) return null
-    const item = ITEMS.find((i) => i.id === hintItemId)
+    const item = items.find((i) => i.id === hintItemId)
     if (!item) return null
 
     const dx = item.position.x - panPosition.x
@@ -447,14 +447,14 @@ export default function Day3Page() {
         ))}
 
         <button
-          onClick={() => foundItems.length === ITEMS.length && setShowGoodyBag(true)}
+          onClick={() => foundItems.length === items.length && setShowGoodyBag(true)}
           className={`ml-1 sm:ml-2 p-2 sm:p-2.5 md:p-3 rounded-full transition-all touch-manipulation flex-shrink-0 ${
-            foundItems.length === ITEMS.length
+            foundItems.length === items.length
               ? "bg-red-500 active:bg-red-600 sm:hover:bg-red-600 cursor-pointer animate-bounce"
               : "bg-gray-200 cursor-not-allowed"
           }`}
         >
-          <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === ITEMS.length ? "text-white" : "text-gray-400"}`} />
+          <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === items.length ? "text-white" : "text-gray-400"}`} />
         </button>
       </div>
 
@@ -495,16 +495,23 @@ export default function Day3Page() {
             transform: `translate(${-panPosition.x * 0.5}%, ${-panPosition.y * 0.5}%)`,
           }}
         >
-          <Image
-            src="/images/background-20-20scrolling-20image.jpeg"
-            alt="Empty Tomb Scene"
-            fill
-            className="object-cover scale-150"
-            priority
-            draggable={false}
-          />
+          {backgroundImageUrl ? (
+            <Image
+              src={backgroundImageUrl}
+              alt="Empty Tomb Scene"
+              fill
+              className="object-cover scale-150"
+              priority
+              draggable={false}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 scale-150 w-full h-full"
+              style={{ backgroundColor: PLAIN_BACKGROUND_COLOR }}
+            />
+          )}
 
-          {ITEMS.map((item) => (
+          {items.map((item) => (
             <button
               key={item.id}
               onClick={(e) => handleItemClick(item.id, e)}
@@ -585,7 +592,7 @@ export default function Day3Page() {
 
       {/* Bottom item bar */}
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-2 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4 rounded-full sm:rounded-full shadow-xl flex items-center gap-2 sm:gap-4 md:gap-6 max-w-[95vw] overflow-x-auto scrollbar-hide">
-        {ITEMS.map((item) => (
+        {items.map((item) => (
           <div key={item.id} className="flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <div
               className={`
@@ -611,7 +618,7 @@ export default function Day3Page() {
 
         <button
           onClick={handleHint}
-          disabled={foundItems.length === ITEMS.length}
+          disabled={foundItems.length === items.length}
           className="bg-yellow-400 text-yellow-900 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg active:bg-yellow-300 sm:hover:bg-yellow-300 transition-colors shadow-md flex items-center gap-1 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex-shrink-0"
         >
           <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -760,7 +767,7 @@ export default function Day3Page() {
             </ul>
 
             <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500 text-center">
-              Found: {foundItems.length} / {ITEMS.length} items
+              Found: {foundItems.length} / {items.length} items
             </p>
 
             <button
@@ -794,134 +801,14 @@ export default function Day3Page() {
         </div>
       )}
 
-      {/* Goody Bag Modal */}
-      {showGoodyBag && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setShowGoodyBag(false)}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full active:bg-gray-100 sm:hover:bg-gray-100 transition-colors touch-manipulation"
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-
-            <div className="text-center mb-4 sm:mb-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
-                <Gift className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#5D4037]">Well Done!</h2>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base max-w-md mx-auto px-2">
-                Well done. You've heard the truth about what happened that first Easter. Here you will find a selection of different elements you could do together as a family at home to continue exploring The Easter Story. As a family you could choose one element or enjoy different elements throughout the week.
-              </p>
-            </div>
-
-            {/* Goody bag items grid */}
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2 sm:gap-3 mb-4 sm:mb-6">
-              {GOODY_BAG_ITEMS.map((item) => {
-                const IconComponent = item.icon
-                return (
-                  <div key={item.id} className="relative">
-                    <button
-                      onClick={() => setActiveGoodyItem(activeGoodyItem === item.id ? null : item.id)}
-                      className={`
-                        w-full aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-all touch-manipulation
-                        ${
-                          activeGoodyItem === item.id
-                            ? "bg-[#4CAF50] text-white scale-105 shadow-lg"
-                            : "bg-gray-100 text-gray-700 active:bg-gray-200 sm:hover:bg-gray-200"
-                        }
-                      `}
-                    >
-                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                      <span className="text-[9px] sm:text-[10px] font-medium text-center px-0.5">{item.label}</span>
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Active item content */}
-            {activeGoodyItem && (
-              <div className="bg-[#FFF8E7] rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 border-2 border-[#4CAF50]/20">
-                {(() => {
-                  const item = GOODY_BAG_ITEMS.find((i) => i.id === activeGoodyItem)
-                  if (!item) return null
-                  const IconComponent = item.icon
-                  return (
-                    <>
-                      <div className="flex items-center gap-2 mb-2">
-                        <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-[#4CAF50]" />
-                        <h4 className="font-bold text-sm sm:text-base text-[#5D4037]">{item.label}</h4>
-                      </div>
-                      {item.embedVideo && (
-                        <div className="mb-3 aspect-video w-full rounded-lg overflow-hidden">
-                          <iframe
-                            src={item.embedVideo}
-                            title="YouTube video player"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className="w-full h-full"
-                          />
-                        </div>
-                      )}
-                      {item.image && (
-                        <div className="mb-3 rounded-lg overflow-hidden">
-                          <Image
-                            src={item.image}
-                            alt={item.label}
-                            width={600}
-                            height={400}
-                            className="w-full h-auto object-contain"
-                          />
-                        </div>
-                      )}
-                      <div className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                        {item.content}
-                      </div>
-                      {item.download && item.downloadUrl && (
-                        <a
-                          href={item.downloadUrl}
-                          download
-                          className="mt-2 sm:mt-3 inline-block bg-[#4CAF50] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation"
-                        >
-                          {item.download}
-                        </a>
-                      )}
-                      {item.link && (
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 sm:mt-3 inline-block bg-blue-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium active:bg-blue-600 sm:hover:bg-blue-600 transition-colors touch-manipulation"
-                        >
-                          Open Link
-                        </a>
-                      )}
-                    </>
-                  )
-                })()}
-              </div>
-            )}
-
-            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"He is not here; He has risen!"}</p>
-
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <button
-                onClick={() => setShowGoodyBag(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 rounded-xl font-bold active:bg-gray-300 sm:hover:bg-gray-300 transition-colors touch-manipulation text-sm sm:text-base"
-              >
-                Keep Exploring
-              </button>
-              <Link
-                href="/"
-                className="flex-1 bg-[#4CAF50] text-white py-2.5 sm:py-3 rounded-xl font-bold active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors text-center touch-manipulation text-sm sm:text-base"
-              >
-                Back to Home
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      <GoodyBagModal
+        open={showGoodyBag}
+        onClose={() => setShowGoodyBag(false)}
+        items={goodyBagItems}
+        footerQuote="He is not here; He has risen!"
+        activeItem={activeGoodyItem}
+        onActiveItemChange={setActiveGoodyItem}
+      />
     </div>
   )
 }

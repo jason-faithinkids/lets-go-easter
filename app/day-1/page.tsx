@@ -26,60 +26,57 @@ import {
   Palette,
   Volume2,
 } from "lucide-react"
+import { GoodyBagModal } from "@/components/GoodyBagModal"
+import type { SiteConfig } from "@/lib/config"
 
-// Define the findable items with their actual positions on the background
-const ITEMS = [
-  {
-    id: 1,
-    name: "Palm Branch",
-    image: "/images/item-201.png",
-    position: { x: 30, y: 20 },
-  },
-  {
-    id: 2,
-    name: "Donkey",
-    image: "/images/item-202.png",
-    position: { x: 50, y: 60 },
-  },
-  {
-    id: 3,
-    name: "Crown",
-    image: "/images/item-203.png",
-    position: { x: 70, y: 30 },
-  },
-  {
-    id: 4,
-    name: "Crowd",
-    image: "/images/item-201.png",
-    position: { x: 25, y: 70 },
-  },
+const DEFAULT_LISTEN_URL = "https://faithinkids.org"
+const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
+
+// Default findable items (used when config has no overrides)
+const DEFAULT_ITEMS = [
+  { id: 1, name: "Palm Branch", image: "/images/item-201.png", position: { x: 30, y: 20 } },
+  { id: 2, name: "Donkey", image: "/images/item-202.png", position: { x: 50, y: 60 } },
+  { id: 3, name: "Crown", image: "/images/item-203.png", position: { x: 70, y: 30 } },
+  { id: 4, name: "Crowd", image: "/images/item-201.png", position: { x: 25, y: 70 } },
+  { id: 5, name: "Cloaks", image: "/images/item-202.png", position: { x: 60, y: 50 } },
 ]
 
-// Story parts with Bible text
+// Story parts with Bible text (from Story text for Digital Family Easter.md)
 const STORY_PARTS = [
   {
     id: 1,
     title: "Part 1",
     verse: "Matthew 21:1-11",
-    text: "As they approached Jerusalem and came to Bethphage on the Mount of Olives, Jesus sent two disciples, saying to them, 'Go to the village ahead of you, and at once you will find a donkey tied there, with her colt by her. Untie them and bring them to me.'",
+    text: "Jesus and his followers were coming closer to Jerusalem. But first they stopped at Bethphage at the hill called the Mount of Olives. From there Jesus sent two of his followers into the town.",
+    audio: "/audio/Day 1 - p1.mp3",
   },
   {
     id: 2,
     title: "Part 2",
     verse: "Matthew 21:1-11",
-    text: "The disciples went and did as Jesus had instructed them. They brought the donkey and the colt and placed their cloaks on them for Jesus to sit on.",
+    text: 'He said to them, "Go to the town you can see there. When you enter it, you will find a donkey tied there with its colt. Untie them and bring them to me. If anyone asks you why you are taking the donkeys, tell him, \'The Master needs them. He will send them back soon.\'"',
+    audio: "/audio/Day 1 - p2.mp3",
   },
   {
     id: 3,
     title: "Part 3",
-    verse: "Matthew 21:1-11",
-    text: "A very large crowd spread their cloaks on the road, while others cut branches from the trees and spread them on the road. The crowds that went ahead of him and those that followed shouted, 'Hosanna to the Son of David! Blessed is he who comes in the name of the Lord! Hosanna in the highest heaven!'",
+    verse: "Matthew 21:4-5",
+    text: 'This was to make clear the full meaning of what the prophet said: "Tell the people of Jerusalem, \'Your king is coming to you. He is gentle and riding on a donkey. He is on the colt of a donkey.\'"',
+    audio: "/audio/Day 1 - p3.mp3",
   },
   {
     id: 4,
     title: "Part 4",
-    verse: "Matthew 21:4-5",
-    text: "This was to make clear the full meaning of what the prophet said: 'Tell the people of Jerusalem, Your king is coming to you. He is gentle and riding on a donkey. He is on the colt of a donkey.'",
+    verse: "Matthew 21:1-11",
+    text: "The followers went and did what Jesus told them to do. They brought the donkey and the colt to Jesus. They laid their coats on the donkeys, and Jesus sat on them. Many people spread their coats on the road before Jesus. Others cut branches from the trees and spread them on the road. Some of the people were walking ahead of Jesus. Others were walking behind him.",
+    audio: "/audio/Day 1 - p4.mp3",
+  },
+  {
+    id: 5,
+    title: "Part 5",
+    verse: "Matthew 21:1-11",
+    text: '"Praise to the Son of David! God bless the One who comes in the name of the Lord! Praise to God in heaven!" Then Jesus went into Jerusalem. The city was filled with excitement. The people asked, "Who is this man?" The crowd answered, "This man is Jesus. He is the prophet from the town of Nazareth in Galilee."',
+    audio: "/audio/Day 1 - p5.mp3",
   },
 ]
 
@@ -129,7 +126,7 @@ const GOODY_BAG_ITEMS = [
     icon: Ear,
     label: "Listen",
     content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to have fun exploring the story of Jesus' arrival into Jerusalem. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
-    link: "https://faithinkids.org",
+    link: DEFAULT_LISTEN_URL,
   },
   {
     id: "discuss",
@@ -144,11 +141,11 @@ Use the picture and the verse to answer the following questions:
 • The crowd waved palm branches to welcome Jesus. How would you expect a crowd to greet a king?
 
 A prayer to pray: Dear God, thank you that Jesus is the king you promised to send. Amen.`,
-    image: "/images/Colouring Arrival in Jerusalem.pdf",
   },
 ]
 
 export default function Day1Page() {
+  const [config, setConfig] = useState<SiteConfig | null>(null)
   const [foundItems, setFoundItems] = useState<number[]>([])
   const [panPosition, setPanPosition] = useState({ x: 50, y: 50 })
   const [selectedStory, setSelectedStory] = useState<(typeof STORY_PARTS)[0] | null>(null)
@@ -162,6 +159,24 @@ export default function Day1Page() {
   const [audioCountdown, setAudioCountdown] = useState<number>(0)
   const [showConfetti, setShowConfetti] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [audioDuration, setAudioDuration] = useState(30)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  useEffect(() => {
+    fetch("/api/config")
+      .then((r) => r.json())
+      .then(setConfig)
+      .catch(() => setConfig(null))
+  }, [])
+
+  const goodyBagItems = GOODY_BAG_ITEMS.map((item) =>
+    item.id === "listen"
+      ? { ...item, link: config?.listenUrlDay1 ?? DEFAULT_LISTEN_URL }
+      : item
+  )
+  const backgroundImageUrl = config?.backgroundDay1 ? `/uploads/${config.backgroundDay1}` : null
+  const items = (config?.itemsDay1 && config.itemsDay1.length > 0 ? config.itemsDay1 : DEFAULT_ITEMS) as typeof DEFAULT_ITEMS
 
   const unlockedParts = foundItems.length
 
@@ -170,24 +185,72 @@ export default function Day1Page() {
       const timer = setTimeout(() => {
         setSelectedStory(STORY_PARTS[newlyUnlockedPart - 1])
         setNewlyUnlockedPart(null)
-        setAudioCountdown(30)
       }, 300)
       return () => clearTimeout(timer)
     }
   }, [newlyUnlockedPart])
 
   useEffect(() => {
-    if (audioCountdown > 0 && selectedStory) {
-      const timer = setTimeout(() => {
-        setAudioCountdown(audioCountdown - 1)
-      }, 1000)
-      return () => clearTimeout(timer)
+    if (selectedStory && "audio" in selectedStory && selectedStory.audio) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+      const audio = new Audio(selectedStory.audio)
+      audioRef.current = audio
+      const onLoaded = () => {
+        const d = Math.ceil(audio.duration)
+        setAudioDuration(d)
+        setAudioCountdown(d)
+      }
+      const onPlay = () => setIsPlaying(true)
+      const onPause = () => setIsPlaying(false)
+      const onEnded = () => {
+        setIsPlaying(false)
+        setAudioCountdown(0)
+      }
+      const onTimeUpdate = () => {
+        if (audio.duration && !isNaN(audio.duration)) {
+          setAudioCountdown(Math.max(0, Math.ceil(audio.duration - audio.currentTime)))
+        }
+      }
+      audio.addEventListener("loadedmetadata", onLoaded)
+      audio.addEventListener("play", onPlay)
+      audio.addEventListener("pause", onPause)
+      audio.addEventListener("ended", onEnded)
+      audio.addEventListener("timeupdate", onTimeUpdate)
+      audio.load()
+      audio.addEventListener("canplay", () => {
+        audio.play().catch(() => {})
+      })
+      return () => {
+        audio.removeEventListener("loadedmetadata", onLoaded)
+        audio.removeEventListener("play", onPlay)
+        audio.removeEventListener("pause", onPause)
+        audio.removeEventListener("ended", onEnded)
+        audio.removeEventListener("timeupdate", onTimeUpdate)
+        audio.pause()
+        audioRef.current = null
+      }
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+      setAudioCountdown(0)
+      setIsPlaying(false)
+      setAudioDuration(30)
     }
-  }, [audioCountdown, selectedStory])
+  }, [selectedStory])
 
   useEffect(() => {
     if (!selectedStory) {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
       setAudioCountdown(0)
+      setIsPlaying(false)
     }
   }, [selectedStory])
 
@@ -202,7 +265,7 @@ export default function Day1Page() {
           setHintItemId(null)
         }
 
-        if (newFoundItems.length === ITEMS.length) {
+        if (newFoundItems.length === items.length) {
           setTimeout(() => {
             setShowConfetti(true)
             setShowGoodyBag(true)
@@ -288,7 +351,7 @@ export default function Day1Page() {
   }
 
   const handleHint = () => {
-    const unfoundItems = ITEMS.filter((item) => !foundItems.includes(item.id))
+    const unfoundItems = items.filter((item) => !foundItems.includes(item.id))
     if (unfoundItems.length > 0) {
       const randomItem = unfoundItems[Math.floor(Math.random() * unfoundItems.length)]
       setHintItemId(randomItem.id)
@@ -298,7 +361,7 @@ export default function Day1Page() {
 
   const getHintDirection = () => {
     if (!hintItemId) return null
-    const item = ITEMS.find((i) => i.id === hintItemId)
+    const item = items.find((i) => i.id === hintItemId)
     if (!item) return null
 
     const dx = item.position.x - panPosition.x
@@ -364,14 +427,14 @@ export default function Day1Page() {
         ))}
 
         <button
-          onClick={() => foundItems.length === ITEMS.length && setShowGoodyBag(true)}
+          onClick={() => foundItems.length === items.length && setShowGoodyBag(true)}
           className={`ml-1 sm:ml-2 p-2 sm:p-2.5 md:p-3 rounded-full transition-all touch-manipulation flex-shrink-0 ${
-            foundItems.length === ITEMS.length
+            foundItems.length === items.length
               ? "bg-red-500 active:bg-red-600 sm:hover:bg-red-600 cursor-pointer animate-bounce"
               : "bg-gray-200 cursor-not-allowed"
           }`}
         >
-          <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === ITEMS.length ? "text-white" : "text-gray-400"}`} />
+          <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === items.length ? "text-white" : "text-gray-400"}`} />
         </button>
       </div>
 
@@ -412,16 +475,23 @@ export default function Day1Page() {
             transform: `translate(${-panPosition.x * 0.5}%, ${-panPosition.y * 0.5}%)`,
           }}
         >
-          <Image
-            src="/images/background-20-20scrolling-20image.jpeg"
-            alt="Jesus Arrives in Jerusalem Scene"
-            fill
-            className="object-cover scale-150"
-            priority
-            draggable={false}
-          />
+          {backgroundImageUrl ? (
+            <Image
+              src={backgroundImageUrl}
+              alt="Jesus Arrives in Jerusalem Scene"
+              fill
+              className="object-cover scale-150"
+              priority
+              draggable={false}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 scale-150 w-full h-full"
+              style={{ backgroundColor: PLAIN_BACKGROUND_COLOR }}
+            />
+          )}
 
-          {ITEMS.map((item) => (
+          {items.map((item) => (
             <button
               key={item.id}
               onClick={(e) => handleItemClick(item.id, e)}
@@ -501,7 +571,7 @@ export default function Day1Page() {
 
       {/* Bottom item bar */}
       <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-2 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4 rounded-full sm:rounded-full shadow-xl flex items-center gap-2 sm:gap-4 md:gap-6 max-w-[95vw] overflow-x-auto scrollbar-hide">
-        {ITEMS.map((item) => (
+        {items.map((item) => (
           <div key={item.id} className="flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <div
               className={`
@@ -527,7 +597,7 @@ export default function Day1Page() {
 
         <button
           onClick={handleHint}
-          disabled={foundItems.length === ITEMS.length}
+          disabled={foundItems.length === items.length}
           className="bg-yellow-400 text-yellow-900 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg active:bg-yellow-300 sm:hover:bg-yellow-300 transition-colors shadow-md flex items-center gap-1 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex-shrink-0"
         >
           <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -567,33 +637,64 @@ export default function Day1Page() {
 
             <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg mb-4">{selectedStory.text}</p>
 
-            {audioCountdown > 0 && (
+            {"audio" in selectedStory && selectedStory.audio && (
               <div className="mb-4 p-3 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
                 <div className="flex items-center justify-center gap-2 mb-2">
-                  <Volume2 className="w-4 h-4 text-yellow-600 animate-pulse" />
+                  <Volume2 className={`w-4 h-4 text-yellow-600 ${isPlaying ? "animate-pulse" : ""}`} />
                   <p className="text-sm font-medium text-yellow-800">
-                    Please listen to the audio ({audioCountdown}s remaining)
+                    {isPlaying
+                      ? `Playing audio... (${audioCountdown}s remaining)`
+                      : audioCountdown > 0
+                        ? `Please listen to the audio (${audioCountdown}s remaining)`
+                        : "Audio ready"}
                   </p>
                 </div>
-                <div className="w-full bg-yellow-200 rounded-full h-2">
-                  <div
-                    className="bg-yellow-500 h-2 rounded-full transition-all duration-1000"
-                    style={{ width: `${((30 - audioCountdown) / 30) * 100}%` }}
-                  />
+                {audioDuration > 0 && (
+                  <div className="w-full bg-yellow-200 rounded-full h-2 mb-2">
+                    <div
+                      className="bg-yellow-500 h-2 rounded-full transition-all duration-1000"
+                      style={{ width: `${((audioDuration - audioCountdown) / audioDuration) * 100}%` }}
+                    />
+                  </div>
+                )}
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => {
+                      if (audioRef.current) {
+                        if (isPlaying) audioRef.current.pause()
+                        else audioRef.current.play()
+                      }
+                    }}
+                    className="bg-[#4CAF50] text-white px-4 py-2 rounded-lg text-sm font-medium active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation flex items-center gap-2"
+                  >
+                    {isPlaying ? (
+                      <>
+                        <X className="w-4 h-4" />
+                        Pause
+                      </>
+                    ) : (
+                      <>
+                        <Volume2 className="w-4 h-4" />
+                        Play Audio
+                      </>
+                    )}
+                  </button>
                 </div>
               </div>
             )}
 
             <button
               onClick={() => setSelectedStory(null)}
-              disabled={audioCountdown > 0}
+              disabled={audioCountdown > 0 && "audio" in selectedStory && !!selectedStory.audio}
               className={`mt-4 sm:mt-6 w-full py-2.5 sm:py-3 rounded-xl font-bold transition-colors touch-manipulation ${
-                audioCountdown > 0
+                audioCountdown > 0 && "audio" in selectedStory && selectedStory.audio
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                   : "bg-[#4CAF50] text-white active:bg-[#45a049] sm:hover:bg-[#45a049]"
               }`}
             >
-              {audioCountdown > 0 ? `Continue in ${audioCountdown}s...` : "Continue Exploring"}
+              {audioCountdown > 0 && "audio" in selectedStory && selectedStory.audio
+                ? `Continue in ${audioCountdown}s...`
+                : "Continue Exploring"}
             </button>
           </div>
         </div>
@@ -643,7 +744,7 @@ export default function Day1Page() {
             </ul>
 
             <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-500 text-center">
-              Found: {foundItems.length} / {ITEMS.length} items
+              Found: {foundItems.length} / {items.length} items
             </p>
 
             <button
@@ -677,134 +778,14 @@ export default function Day1Page() {
         </div>
       )}
 
-      {/* Goody Bag Modal */}
-      {showGoodyBag && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setShowGoodyBag(false)}
-              className="absolute top-3 right-3 sm:top-4 sm:right-4 p-2 rounded-full active:bg-gray-100 sm:hover:bg-gray-100 transition-colors touch-manipulation"
-            >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
-            </button>
-
-            <div className="text-center mb-4 sm:mb-6">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full mx-auto flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
-                <Gift className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
-              </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-[#5D4037]">Well Done!</h2>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base max-w-md mx-auto px-2">
-                Well done. You've heard the truth about what happened that first Easter. Here you will find a selection of different elements you could do together as a family at home to continue exploring The Easter Story. As a family you could choose one element or enjoy different elements throughout the week.
-              </p>
-            </div>
-
-            {/* Goody bag items grid */}
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-2 sm:gap-3 mb-4 sm:mb-6">
-              {GOODY_BAG_ITEMS.map((item) => {
-                const IconComponent = item.icon
-                return (
-                  <div key={item.id} className="relative">
-                    <button
-                      onClick={() => setActiveGoodyItem(activeGoodyItem === item.id ? null : item.id)}
-                      className={`
-                        w-full aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-all touch-manipulation
-                        ${
-                          activeGoodyItem === item.id
-                            ? "bg-[#4CAF50] text-white scale-105 shadow-lg"
-                            : "bg-gray-100 text-gray-700 active:bg-gray-200 sm:hover:bg-gray-200"
-                        }
-                      `}
-                    >
-                      <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
-                      <span className="text-[9px] sm:text-[10px] font-medium text-center px-0.5">{item.label}</span>
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Active item content */}
-            {activeGoodyItem && (
-              <div className="bg-[#FFF8E7] rounded-xl p-3 sm:p-4 mb-4 sm:mb-6 border-2 border-[#4CAF50]/20">
-                {(() => {
-                  const item = GOODY_BAG_ITEMS.find((i) => i.id === activeGoodyItem)
-                  if (!item) return null
-                  const IconComponent = item.icon
-                  return (
-                    <>
-                      <div className="flex items-center gap-2 mb-2">
-                        <IconComponent className="w-4 h-4 sm:w-5 sm:h-5 text-[#4CAF50]" />
-                        <h4 className="font-bold text-sm sm:text-base text-[#5D4037]">{item.label}</h4>
-                      </div>
-                      {item.embedVideo && (
-                        <div className="mb-3 aspect-video w-full rounded-lg overflow-hidden">
-                          <iframe
-                            src={item.embedVideo}
-                            title="YouTube video player"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className="w-full h-full"
-                          />
-                        </div>
-                      )}
-                      {item.image && (
-                        <div className="mb-3 rounded-lg overflow-hidden">
-                          <Image
-                            src={item.image}
-                            alt={item.label}
-                            width={600}
-                            height={400}
-                            className="w-full h-auto object-contain"
-                          />
-                        </div>
-                      )}
-                      <div className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
-                        {item.content}
-                      </div>
-                      {item.download && item.downloadUrl && (
-                        <a
-                          href={item.downloadUrl}
-                          download
-                          className="mt-2 sm:mt-3 inline-block bg-[#4CAF50] text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors touch-manipulation"
-                        >
-                          {item.download}
-                        </a>
-                      )}
-                      {item.link && (
-                        <a
-                          href={item.link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="mt-2 sm:mt-3 inline-block bg-blue-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium active:bg-blue-600 sm:hover:bg-blue-600 transition-colors touch-manipulation"
-                        >
-                          Open Link
-                        </a>
-                      )}
-                    </>
-                  )
-                })()}
-              </div>
-            )}
-
-            <p className="text-center text-[#4CAF50] font-medium text-base sm:text-lg mb-3 sm:mb-4">{"Hosanna to the Son of David!"}</p>
-
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-              <button
-                onClick={() => setShowGoodyBag(false)}
-                className="flex-1 bg-gray-200 text-gray-700 py-2.5 sm:py-3 rounded-xl font-bold active:bg-gray-300 sm:hover:bg-gray-300 transition-colors touch-manipulation text-sm sm:text-base"
-              >
-                Keep Exploring
-              </button>
-              <Link
-                href="/"
-                className="flex-1 bg-[#4CAF50] text-white py-2.5 sm:py-3 rounded-xl font-bold active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors text-center touch-manipulation text-sm sm:text-base"
-              >
-                Back to Home
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
+      <GoodyBagModal
+        open={showGoodyBag}
+        onClose={() => setShowGoodyBag(false)}
+        items={goodyBagItems}
+        footerQuote="Hosanna to the Son of David!"
+        activeItem={activeGoodyItem}
+        onActiveItemChange={setActiveGoodyItem}
+      />
     </div>
   )
 }
