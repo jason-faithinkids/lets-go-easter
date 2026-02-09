@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Slider } from "@/components/ui/slider"
 import type { SiteConfig, FindableItem } from "@/lib/config"
 import { MediaLibraryModal } from "@/components/MediaLibraryModal"
 import { Home, Save, Upload, Music, Palette, Search, ImageIcon } from "lucide-react"
@@ -59,6 +60,7 @@ export default function AdminPage() {
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [savingBackgroundDay, setSavingBackgroundDay] = useState<1 | 2 | 3 | null>(null)
+  const [savingItemsDay, setSavingItemsDay] = useState<1 | 2 | 3 | null>(null)
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null)
   const [libraryContext, setLibraryContext] = useState<
     { type: "background"; day: 1 | 2 | 3 } | { type: "item"; day: 1 | 2 | 3; index: number } | null
@@ -195,6 +197,34 @@ export default function AdminPage() {
       showMessage("err", msg)
     } finally {
       setSavingBackgroundDay(null)
+    }
+  }
+
+  const saveItemsDay = async (day: 1 | 2 | 3) => {
+    const key = `itemsDay${day}` as const
+    const items = day === 1 ? itemsDay1 : day === 2 ? itemsDay2 : itemsDay3
+    setSavingItemsDay(day)
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: items }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as { error?: string }).error || "Save failed")
+      }
+      const c = await res.json()
+      setConfig(c)
+      if (c.itemsDay1?.length) setItemsDay1(c.itemsDay1.map((it: FindableItem) => ({ ...it, position: { x: Number(it.position?.x) || 50, y: Number(it.position?.y) || 50 } })))
+      if (c.itemsDay2?.length) setItemsDay2(c.itemsDay2.map((it: FindableItem) => ({ ...it, position: { x: Number(it.position?.x) || 50, y: Number(it.position?.y) || 50 } })))
+      if (c.itemsDay3?.length) setItemsDay3(c.itemsDay3.map((it: FindableItem) => ({ ...it, position: { x: Number(it.position?.x) || 50, y: Number(it.position?.y) || 50 } })))
+      showMessage("ok", `Day ${day} items saved.`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save."
+      showMessage("err", msg)
+    } finally {
+      setSavingItemsDay(null)
     }
   }
 
@@ -580,14 +610,14 @@ export default function AdminPage() {
               Items to find – Day 1 (Jesus arrives)
             </CardTitle>
             <CardDescription>
-              Choose the image and label for each hidden object. Drag the position sliders to move items on the scene (X% and Y%). Players tap these in the scene.
+              Choose the image and label for each hidden object. Paste image URL and click Save, or choose from uploads. Use the X and Y sliders to position items on the scene.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {itemsDay1.map((item, index) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/50 p-4 sm:flex-row sm:items-center"
+                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/50 p-4 sm:flex-row sm:items-start sm:flex-wrap"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-white">
                   <Image
@@ -598,7 +628,7 @@ export default function AdminPage() {
                     className="object-contain"
                   />
                 </div>
-                <div className="min-w-0 flex-1 space-y-2">
+                <div className="min-w-0 flex-1 space-y-2 sm:min-w-[140px]">
                   <Label className="text-xs text-slate-500">Label</Label>
                   <Input
                     value={item.name}
@@ -606,78 +636,87 @@ export default function AdminPage() {
                     placeholder="Item name"
                     className="bg-white"
                   />
-                  <div className="flex items-center gap-2 pt-1">
-                    <Label className="text-xs text-slate-500 shrink-0">Position X %</Label>
-                    <Input
-                      type="number"
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs text-slate-500">Position X</Label>
+                      <span className="text-xs tabular-nums text-slate-500">{Number(item.position?.x) ?? 50}%</span>
+                    </div>
+                    <Slider
                       min={0}
                       max={100}
-                      value={Number(item.position?.x) ?? 50}
-                      onChange={(e) =>
-                        updateItem(1, index, {
-                          position: { x: Number(e.target.value) || 0, y: Number(item.position?.y) ?? 50 },
-                        })
-                      }
-                      className="h-8 w-16 bg-white text-sm"
+                      value={[Number(item.position?.x) ?? 50]}
+                      onValueChange={([v]) => updateItem(1, index, { position: { x: v, y: Number(item.position?.y) ?? 50 } })}
+                      className="w-full max-w-[160px]"
                     />
-                    <Label className="text-xs text-slate-500 shrink-0">Y %</Label>
-                    <Input
-                      type="number"
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs text-slate-500">Position Y</Label>
+                      <span className="text-xs tabular-nums text-slate-500">{Number(item.position?.y) ?? 50}%</span>
+                    </div>
+                    <Slider
                       min={0}
                       max={100}
-                      value={Number(item.position?.y) ?? 50}
-                      onChange={(e) =>
-                        updateItem(1, index, {
-                          position: { x: Number(item.position?.x) ?? 50, y: Number(e.target.value) || 0 },
-                        })
-                      }
-                      className="h-8 w-16 bg-white text-sm"
+                      value={[Number(item.position?.y) ?? 50]}
+                      onValueChange={([v]) => updateItem(1, index, { position: { x: Number(item.position?.x) ?? 50, y: v } })}
+                      className="w-full max-w-[160px]"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
-                  <div className="w-full sm:w-auto sm:min-w-[180px]">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:flex-wrap">
+                  <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:min-w-[200px]">
                     <Input
                       type="url"
-                      placeholder="Or paste image URL"
+                      placeholder="Paste image URL"
                       value={item.image.startsWith("http") ? item.image : ""}
                       onChange={(e) => updateItem(1, index, { image: e.target.value })}
-                      className="h-9 rounded-md border border-slate-200 bg-white text-sm"
+                      className="h-9 flex-1 rounded-md border border-slate-200 bg-white text-sm min-w-0"
                     />
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="shrink-0 gap-1 bg-[#4CAF50] hover:bg-[#45a049]"
+                      disabled={savingItemsDay === 1}
+                      onClick={() => saveItemsDay(1)}
+                    >
+                      <Save className="h-4 w-4" />
+                      {savingItemsDay === 1 ? "Saving…" : "Save"}
+                    </Button>
                   </div>
-                  <select
-                    value={item.image.startsWith("http") ? "" : item.image}
-                    onChange={(e) => updateItem(1, index, { image: e.target.value })}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
-                  >
-                    <option value="">Select image</option>
-                    {itemImages.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-1"
-                    onClick={() => setLibraryContext({ type: "item", day: 1, index })}
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    Library
-                  </Button>
-                  <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50">
-                    <Upload className="h-4 w-4" />
-                    <span>Upload</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleUploadItemImage(1, index, e)}
-                      disabled={uploading}
-                    />
-                  </label>
+                  <div className="flex gap-2">
+                    <select
+                      value={item.image.startsWith("http") ? "" : item.image}
+                      onChange={(e) => updateItem(1, index, { image: e.target.value })}
+                      className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                      title="From uploads"
+                    >
+                      <option value="">From uploads</option>
+                      {itemImages.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => setLibraryContext({ type: "item", day: 1, index })}
+                      title="Library"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                    </Button>
+                    <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm transition-colors hover:bg-slate-50">
+                      <Upload className="h-4 w-4" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleUploadItemImage(1, index, e)}
+                        disabled={uploading}
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             ))}
@@ -692,14 +731,14 @@ export default function AdminPage() {
               Items to find – Day 2 (The cross)
             </CardTitle>
             <CardDescription>
-              Choose the image and label for each hidden object. Adjust X% and Y% to move items on the scene.
+              Choose the image and label for each hidden object. Paste image URL and click Save, or choose from uploads. Use the X and Y sliders to position items on the scene.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {itemsDay2.map((item, index) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/50 p-4 sm:flex-row sm:items-center"
+                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/50 p-4 sm:flex-row sm:items-start sm:flex-wrap"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-white">
                   <Image
@@ -710,7 +749,7 @@ export default function AdminPage() {
                     className="object-contain"
                   />
                 </div>
-                <div className="min-w-0 flex-1 space-y-2">
+                <div className="min-w-0 flex-1 space-y-2 sm:min-w-[140px]">
                   <Label className="text-xs text-slate-500">Label</Label>
                   <Input
                     value={item.name}
@@ -718,78 +757,87 @@ export default function AdminPage() {
                     placeholder="Item name"
                     className="bg-white"
                   />
-                  <div className="flex items-center gap-2 pt-1">
-                    <Label className="text-xs text-slate-500 shrink-0">Position X %</Label>
-                    <Input
-                      type="number"
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs text-slate-500">Position X</Label>
+                      <span className="text-xs tabular-nums text-slate-500">{Number(item.position?.x) ?? 50}%</span>
+                    </div>
+                    <Slider
                       min={0}
                       max={100}
-                      value={Number(item.position?.x) ?? 50}
-                      onChange={(e) =>
-                        updateItem(2, index, {
-                          position: { x: Number(e.target.value) || 0, y: Number(item.position?.y) ?? 50 },
-                        })
-                      }
-                      className="h-8 w-16 bg-white text-sm"
+                      value={[Number(item.position?.x) ?? 50]}
+                      onValueChange={([v]) => updateItem(2, index, { position: { x: v, y: Number(item.position?.y) ?? 50 } })}
+                      className="w-full max-w-[160px]"
                     />
-                    <Label className="text-xs text-slate-500 shrink-0">Y %</Label>
-                    <Input
-                      type="number"
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs text-slate-500">Position Y</Label>
+                      <span className="text-xs tabular-nums text-slate-500">{Number(item.position?.y) ?? 50}%</span>
+                    </div>
+                    <Slider
                       min={0}
                       max={100}
-                      value={Number(item.position?.y) ?? 50}
-                      onChange={(e) =>
-                        updateItem(2, index, {
-                          position: { x: Number(item.position?.x) ?? 50, y: Number(e.target.value) || 0 },
-                        })
-                      }
-                      className="h-8 w-16 bg-white text-sm"
+                      value={[Number(item.position?.y) ?? 50]}
+                      onValueChange={([v]) => updateItem(2, index, { position: { x: Number(item.position?.x) ?? 50, y: v } })}
+                      className="w-full max-w-[160px]"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
-                  <div className="w-full sm:w-auto sm:min-w-[180px]">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:flex-wrap">
+                  <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:min-w-[200px]">
                     <Input
                       type="url"
-                      placeholder="Or paste image URL"
+                      placeholder="Paste image URL"
                       value={item.image.startsWith("http") ? item.image : ""}
                       onChange={(e) => updateItem(2, index, { image: e.target.value })}
-                      className="h-9 rounded-md border border-slate-200 bg-white text-sm"
+                      className="h-9 flex-1 rounded-md border border-slate-200 bg-white text-sm min-w-0"
                     />
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="shrink-0 gap-1 bg-[#4CAF50] hover:bg-[#45a049]"
+                      disabled={savingItemsDay === 2}
+                      onClick={() => saveItemsDay(2)}
+                    >
+                      <Save className="h-4 w-4" />
+                      {savingItemsDay === 2 ? "Saving…" : "Save"}
+                    </Button>
                   </div>
-                  <select
-                    value={item.image.startsWith("http") ? "" : item.image}
-                    onChange={(e) => updateItem(2, index, { image: e.target.value })}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
-                  >
-                    <option value="">Select image</option>
-                    {itemImages.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-1"
-                    onClick={() => setLibraryContext({ type: "item", day: 2, index })}
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    Library
-                  </Button>
-                  <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50">
-                    <Upload className="h-4 w-4" />
-                    <span>Upload</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleUploadItemImage(2, index, e)}
-                      disabled={uploading}
-                    />
-                  </label>
+                  <div className="flex gap-2">
+                    <select
+                      value={item.image.startsWith("http") ? "" : item.image}
+                      onChange={(e) => updateItem(2, index, { image: e.target.value })}
+                      className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                      title="From uploads"
+                    >
+                      <option value="">From uploads</option>
+                      {itemImages.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => setLibraryContext({ type: "item", day: 2, index })}
+                      title="Library"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                    </Button>
+                    <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm transition-colors hover:bg-slate-50">
+                      <Upload className="h-4 w-4" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleUploadItemImage(2, index, e)}
+                        disabled={uploading}
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             ))}
@@ -804,14 +852,14 @@ export default function AdminPage() {
               Items to find – Day 3 (Empty tomb)
             </CardTitle>
             <CardDescription>
-              Choose the image and label for each hidden object. Adjust X% and Y% to move items on the scene.
+              Choose the image and label for each hidden object. Paste image URL and click Save, or choose from uploads. Use the X and Y sliders to position items on the scene.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {itemsDay3.map((item, index) => (
               <div
                 key={item.id}
-                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/50 p-4 sm:flex-row sm:items-center"
+                className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50/50 p-4 sm:flex-row sm:items-start sm:flex-wrap"
               >
                 <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-white">
                   <Image
@@ -822,7 +870,7 @@ export default function AdminPage() {
                     className="object-contain"
                   />
                 </div>
-                <div className="min-w-0 flex-1 space-y-2">
+                <div className="min-w-0 flex-1 space-y-2 sm:min-w-[140px]">
                   <Label className="text-xs text-slate-500">Label</Label>
                   <Input
                     value={item.name}
@@ -830,78 +878,87 @@ export default function AdminPage() {
                     placeholder="Item name"
                     className="bg-white"
                   />
-                  <div className="flex items-center gap-2 pt-1">
-                    <Label className="text-xs text-slate-500 shrink-0">Position X %</Label>
-                    <Input
-                      type="number"
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs text-slate-500">Position X</Label>
+                      <span className="text-xs tabular-nums text-slate-500">{Number(item.position?.x) ?? 50}%</span>
+                    </div>
+                    <Slider
                       min={0}
                       max={100}
-                      value={Number(item.position?.x) ?? 50}
-                      onChange={(e) =>
-                        updateItem(3, index, {
-                          position: { x: Number(e.target.value) || 0, y: Number(item.position?.y) ?? 50 },
-                        })
-                      }
-                      className="h-8 w-16 bg-white text-sm"
+                      value={[Number(item.position?.x) ?? 50]}
+                      onValueChange={([v]) => updateItem(3, index, { position: { x: v, y: Number(item.position?.y) ?? 50 } })}
+                      className="w-full max-w-[160px]"
                     />
-                    <Label className="text-xs text-slate-500 shrink-0">Y %</Label>
-                    <Input
-                      type="number"
+                    <div className="flex items-center justify-between gap-2">
+                      <Label className="text-xs text-slate-500">Position Y</Label>
+                      <span className="text-xs tabular-nums text-slate-500">{Number(item.position?.y) ?? 50}%</span>
+                    </div>
+                    <Slider
                       min={0}
                       max={100}
-                      value={Number(item.position?.y) ?? 50}
-                      onChange={(e) =>
-                        updateItem(3, index, {
-                          position: { x: Number(item.position?.x) ?? 50, y: Number(e.target.value) || 0 },
-                        })
-                      }
-                      className="h-8 w-16 bg-white text-sm"
+                      value={[Number(item.position?.y) ?? 50]}
+                      onValueChange={([v]) => updateItem(3, index, { position: { x: Number(item.position?.x) ?? 50, y: v } })}
+                      className="w-full max-w-[160px]"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
-                  <div className="w-full sm:w-auto sm:min-w-[180px]">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:flex-wrap">
+                  <div className="flex flex-1 flex-col gap-1 sm:flex-row sm:items-center sm:min-w-[200px]">
                     <Input
                       type="url"
-                      placeholder="Or paste image URL"
+                      placeholder="Paste image URL"
                       value={item.image.startsWith("http") ? item.image : ""}
                       onChange={(e) => updateItem(3, index, { image: e.target.value })}
-                      className="h-9 rounded-md border border-slate-200 bg-white text-sm"
+                      className="h-9 flex-1 rounded-md border border-slate-200 bg-white text-sm min-w-0"
                     />
+                    <Button
+                      type="button"
+                      size="sm"
+                      className="shrink-0 gap-1 bg-[#4CAF50] hover:bg-[#45a049]"
+                      disabled={savingItemsDay === 3}
+                      onClick={() => saveItemsDay(3)}
+                    >
+                      <Save className="h-4 w-4" />
+                      {savingItemsDay === 3 ? "Saving…" : "Save"}
+                    </Button>
                   </div>
-                  <select
-                    value={item.image.startsWith("http") ? "" : item.image}
-                    onChange={(e) => updateItem(3, index, { image: e.target.value })}
-                    className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
-                  >
-                    <option value="">Select image</option>
-                    {itemImages.map((opt) => (
-                      <option key={opt.id} value={opt.id}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="gap-1"
-                    onClick={() => setLibraryContext({ type: "item", day: 3, index })}
-                  >
-                    <ImageIcon className="h-4 w-4" />
-                    Library
-                  </Button>
-                  <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50">
-                    <Upload className="h-4 w-4" />
-                    <span>Upload</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => handleUploadItemImage(3, index, e)}
-                      disabled={uploading}
-                    />
-                  </label>
+                  <div className="flex gap-2">
+                    <select
+                      value={item.image.startsWith("http") ? "" : item.image}
+                      onChange={(e) => updateItem(3, index, { image: e.target.value })}
+                      className="rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                      title="From uploads"
+                    >
+                      <option value="">From uploads</option>
+                      {itemImages.map((opt) => (
+                        <option key={opt.id} value={opt.id}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0"
+                      onClick={() => setLibraryContext({ type: "item", day: 3, index })}
+                      title="Library"
+                    >
+                      <ImageIcon className="h-4 w-4" />
+                    </Button>
+                    <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm transition-colors hover:bg-slate-50">
+                      <Upload className="h-4 w-4" />
+                      <span>Upload</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => handleUploadItemImage(3, index, e)}
+                        disabled={uploading}
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             ))}
