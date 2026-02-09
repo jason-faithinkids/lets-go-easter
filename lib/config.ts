@@ -36,8 +36,28 @@ export const DEFAULT_CONFIG: SiteConfig = {
 }
 
 const CONFIG_PATH = "data/site-config.json"
+const CONFIG_BLOB_PATHNAME = "site-config.json"
+
+function useBlobStorage(): boolean {
+  return typeof process !== "undefined" && !!process.env.BLOB_READ_WRITE_TOKEN
+}
 
 export async function getConfig(): Promise<SiteConfig> {
+  if (useBlobStorage()) {
+    try {
+      const { list } = await import("@vercel/blob")
+      const { blobs } = await list({ prefix: CONFIG_BLOB_PATHNAME })
+      const configBlob = blobs.find((b) => b.pathname === CONFIG_BLOB_PATHNAME)
+      if (!configBlob?.url) return { ...DEFAULT_CONFIG }
+      const res = await fetch(configBlob.url)
+      if (!res.ok) return { ...DEFAULT_CONFIG }
+      const parsed = (await res.json()) as Partial<SiteConfig>
+      return { ...DEFAULT_CONFIG, ...parsed }
+    } catch {
+      return { ...DEFAULT_CONFIG }
+    }
+  }
+
   const fs = await import("fs/promises")
   const path = await import("path")
   const filePath = path.join(process.cwd(), CONFIG_PATH)
@@ -51,10 +71,23 @@ export async function getConfig(): Promise<SiteConfig> {
 }
 
 export async function setConfig(updates: Partial<SiteConfig>): Promise<SiteConfig> {
-  const fs = await import("fs/promises")
-  const path = await import("path")
   const current = await getConfig()
   const next = { ...current, ...updates }
+
+  if (useBlobStorage()) {
+    const { put } = await import("@vercel/blob")
+    const body = JSON.stringify(next, null, 2)
+    await put(CONFIG_BLOB_PATHNAME, body, {
+      access: "public",
+      contentType: "application/json",
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    })
+    return next
+  }
+
+  const fs = await import("fs/promises")
+  const path = await import("path")
   const filePath = path.join(process.cwd(), CONFIG_PATH)
   const dir = path.dirname(filePath)
   await fs.mkdir(dir, { recursive: true })

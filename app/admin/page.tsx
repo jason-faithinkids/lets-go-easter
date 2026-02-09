@@ -58,6 +58,7 @@ export default function AdminPage() {
   const [uploadDay, setUploadDay] = useState<"1" | "2" | "3">("1")
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [savingBackgroundDay, setSavingBackgroundDay] = useState<1 | 2 | 3 | null>(null)
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null)
   const [libraryContext, setLibraryContext] = useState<
     { type: "background"; day: 1 | 2 | 3 } | { type: "item"; day: 1 | 2 | 3; index: number } | null
@@ -142,38 +143,105 @@ export default function AdminPage() {
           imageCreditDay3: imageCreditDay3 || null,
         }),
       })
-      if (!res.ok) throw new Error("Save failed")
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as { error?: string }).error || "Save failed")
+      }
       const c = await res.json()
       setConfig(c)
       showMessage("ok", "All settings saved successfully.")
-    } catch {
-      showMessage("err", "Failed to save. Please try again.")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save."
+      showMessage("err", msg)
     } finally {
       setSaving(false)
     }
   }
 
+  const saveBackgroundDay = async (day: 1 | 2 | 3) => {
+    const key = `backgroundDay${day}` as const
+    const urlVal = day === 1 ? backgroundUrlDay1 : day === 2 ? backgroundUrlDay2 : backgroundUrlDay3
+    const fileVal = day === 1 ? backgroundDay1 : day === 2 ? backgroundDay2 : backgroundDay3
+    const value = (urlVal || fileVal) || null
+    setSavingBackgroundDay(day)
+    try {
+      const res = await fetch("/api/config", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value }),
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as { error?: string }).error || "Save failed")
+      }
+      const c = await res.json()
+      setConfig(c)
+      const bg = c[key] ?? ""
+      if (day === 1) {
+        setBackgroundDay1(bg.startsWith("http") ? "" : bg)
+        setBackgroundUrlDay1(bg.startsWith("http") ? bg : "")
+      }
+      if (day === 2) {
+        setBackgroundDay2(bg.startsWith("http") ? "" : bg)
+        setBackgroundUrlDay2(bg.startsWith("http") ? bg : "")
+      }
+      if (day === 3) {
+        setBackgroundDay3(bg.startsWith("http") ? "" : bg)
+        setBackgroundUrlDay3(bg.startsWith("http") ? bg : "")
+      }
+      showMessage("ok", `Day ${day} background saved.`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to save."
+      showMessage("err", msg)
+    } finally {
+      setSavingBackgroundDay(null)
+    }
+  }
+
+  const UPLOAD_TIMEOUT_MS = 25000
+
   const handleUploadBackground = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
+    const inputEl = e.target
     try {
       const form = new FormData()
       form.append("file", file)
       form.append("day", uploadDay)
-      const res = await fetch("/api/upload/background", { method: "POST", body: form })
-      if (!res.ok) throw new Error("Upload failed")
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS)
+      const res = await fetch("/api/upload/background", {
+        method: "POST",
+        body: form,
+        signal: controller.signal,
+      })
+      clearTimeout(timeoutId)
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error((err as { error?: string }).error || "Upload failed")
+      }
       const { filename } = await res.json()
-      if (uploadDay === "1") setBackgroundDay1(filename)
-      if (uploadDay === "2") setBackgroundDay2(filename)
-      if (uploadDay === "3") setBackgroundDay3(filename)
+      if (uploadDay === "1") {
+        setBackgroundDay1(filename)
+        setBackgroundUrlDay1("")
+      }
+      if (uploadDay === "2") {
+        setBackgroundDay2(filename)
+        setBackgroundUrlDay2("")
+      }
+      if (uploadDay === "3") {
+        setBackgroundDay3(filename)
+        setBackgroundUrlDay3("")
+      }
       setBackgrounds((prev) => [...prev, { id: filename, url: `/uploads/${filename}`, day: parseInt(uploadDay, 10) }])
-      showMessage("ok", "Background uploaded. Click Save to apply.")
-    } catch {
-      showMessage("err", "Upload failed.")
+      showMessage("ok", "Background uploaded. Click Save next to Day " + uploadDay + " to apply.")
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Upload failed."
+      showMessage("err", msg === "The user aborted a request." ? "Upload timed out. Try a smaller image or use a URL instead." : msg)
     } finally {
       setUploading(false)
-      e.target.value = ""
+      if (inputEl) inputEl.value = ""
     }
   }
 
@@ -334,16 +402,105 @@ export default function AdminPage() {
               Scene backgrounds
             </CardTitle>
             <CardDescription>
-              Upload an image, paste a direct image URL, or choose from your uploads. Use a link that points to an image file (e.g. ending in .jpg or .png), not a webpage. No selection shows a plain colour.
+              Paste a direct image URL (e.g. https://…/image.jpg) and click Save next to that day. Or choose from uploads below. Use a link that points to an image file, not a webpage.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-slate-600">Upload new image for:</span>
+          <CardContent className="space-y-4">
+            {([
+              {
+                day: 1 as const,
+                urlValue: backgroundUrlDay1,
+                setUrl: (v: string) => {
+                  setBackgroundUrlDay1(v)
+                  if (v) setBackgroundDay1("")
+                },
+                fileValue: backgroundDay1,
+                setFile: (v: string) => {
+                  setBackgroundDay1(v)
+                  if (v) setBackgroundUrlDay1("")
+                },
+              },
+              {
+                day: 2 as const,
+                urlValue: backgroundUrlDay2,
+                setUrl: (v: string) => {
+                  setBackgroundUrlDay2(v)
+                  if (v) setBackgroundDay2("")
+                },
+                fileValue: backgroundDay2,
+                setFile: (v: string) => {
+                  setBackgroundDay2(v)
+                  if (v) setBackgroundUrlDay2("")
+                },
+              },
+              {
+                day: 3 as const,
+                urlValue: backgroundUrlDay3,
+                setUrl: (v: string) => {
+                  setBackgroundUrlDay3(v)
+                  if (v) setBackgroundDay3("")
+                },
+                fileValue: backgroundDay3,
+                setFile: (v: string) => {
+                  setBackgroundDay3(v)
+                  if (v) setBackgroundUrlDay3("")
+                },
+              },
+            ] as const).map(({ day, urlValue, setUrl, fileValue, setFile }) => (
+              <div key={day} className="flex flex-col gap-2 rounded-lg border border-slate-100 bg-slate-50/50 p-3 sm:flex-row sm:items-center sm:gap-3">
+                <Label className="shrink-0 text-sm font-medium sm:w-28">Day {day} background</Label>
+                <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
+                  <Input
+                    type="url"
+                    placeholder="https://…/image.jpg"
+                    value={urlValue}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="min-w-0 flex-1 bg-white text-sm"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="shrink-0 gap-1 bg-[#4CAF50] hover:bg-[#45a049]"
+                    disabled={savingBackgroundDay === day}
+                    onClick={() => saveBackgroundDay(day)}
+                  >
+                    <Save className="h-4 w-4" />
+                    {savingBackgroundDay === day ? "Saving…" : "Save"}
+                  </Button>
+                </div>
+                <div className="flex gap-2 sm:w-48">
+                  <select
+                    value={fileValue}
+                    onChange={(e) => setFile(e.target.value)}
+                    className="min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                    title="From uploads"
+                  >
+                    <option value="">From uploads</option>
+                    {backgrounds.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.id}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
+                    onClick={() => setLibraryContext({ type: "background", day })}
+                    title="Library"
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <div className="flex flex-wrap items-center gap-2 border-t border-slate-200 pt-3">
+              <span className="text-sm text-slate-500">Upload new image for:</span>
               {(["1", "2", "3"] as const).map((d) => (
                 <label
                   key={d}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50 has-[:checked]:border-[#4CAF50] has-[:checked]:bg-green-50"
+                  className="flex cursor-pointer items-center gap-2 rounded border border-slate-200 bg-white px-2 py-1.5 text-sm has-[:checked]:border-[#4CAF50] has-[:checked]:bg-green-50"
                 >
                   <input
                     type="radio"
@@ -360,94 +517,9 @@ export default function AdminPage() {
                 accept="image/*"
                 onChange={handleUploadBackground}
                 disabled={uploading}
-                className="max-w-[200px] text-sm file:mr-2 file:rounded-md file:border-0 file:bg-[#4CAF50] file:px-3 file:py-1.5 file:text-sm file:text-white file:hover:bg-[#45a049]"
+                className="max-w-[180px] text-sm file:mr-2 file:rounded file:border-0 file:bg-[#4CAF50] file:px-2 file:py-1 file:text-xs file:text-white"
               />
               {uploading && <span className="text-sm text-slate-500">Uploading…</span>}
-            </div>
-            <Separator />
-            <div className="grid gap-6 sm:grid-cols-3">
-              {[
-                {
-                  day: 1,
-                  urlValue: backgroundUrlDay1,
-                  setUrl: (v: string) => {
-                    setBackgroundUrlDay1(v)
-                    if (v) setBackgroundDay1("")
-                  },
-                  fileValue: backgroundDay1,
-                  setFile: (v: string) => {
-                    setBackgroundDay1(v)
-                    if (v) setBackgroundUrlDay1("")
-                  },
-                },
-                {
-                  day: 2,
-                  urlValue: backgroundUrlDay2,
-                  setUrl: (v: string) => {
-                    setBackgroundUrlDay2(v)
-                    if (v) setBackgroundDay2("")
-                  },
-                  fileValue: backgroundDay2,
-                  setFile: (v: string) => {
-                    setBackgroundDay2(v)
-                    if (v) setBackgroundUrlDay2("")
-                  },
-                },
-                {
-                  day: 3,
-                  urlValue: backgroundUrlDay3,
-                  setUrl: (v: string) => {
-                    setBackgroundUrlDay3(v)
-                    if (v) setBackgroundDay3("")
-                  },
-                  fileValue: backgroundDay3,
-                  setFile: (v: string) => {
-                    setBackgroundDay3(v)
-                    if (v) setBackgroundUrlDay3("")
-                  },
-                },
-              ].map(({ day, urlValue, setUrl, fileValue, setFile }) => (
-                <div key={day} className="space-y-3 rounded-lg border border-slate-100 bg-slate-50/50 p-4">
-                  <Label className="text-base font-medium">Day {day} background</Label>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-slate-500">Paste image URL</Label>
-                    <Input
-                      type="url"
-                      placeholder="https://…/image.jpg"
-                      value={urlValue}
-                      onChange={(e) => setUrl(e.target.value)}
-                      className="bg-white text-sm"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-xs text-slate-500">Or choose from uploads</Label>
-                    <div className="flex gap-2">
-                      <select
-                        value={fileValue}
-                        onChange={(e) => setFile(e.target.value)}
-                        className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
-                      >
-                        <option value="">—</option>
-                        {backgrounds.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.id}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 gap-1"
-                        onClick={() => setLibraryContext({ type: "background", day: day as 1 | 2 | 3 })}
-                      >
-                        <ImageIcon className="h-4 w-4" />
-                        Library
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </CardContent>
         </Card>

@@ -88,7 +88,11 @@ npm start
 
 1. **Connect to Vercel**: In the [Vercel dashboard](https://vercel.com), import the GitHub repo `jason-faithinkids/lets-go-easter`. Use the default settings (Next.js, `npm run build`, `npm start`).
 2. **Deploy**: Pushing to `main` triggers a new deployment. Your production URL will be something like `https://lets-go-easter.vercel.app`.
-3. **Production behaviour**: The game (Days 1–3, story, goody bag, audio) works in production. Admin at `/admin` and config/upload APIs use the local filesystem; on Vercel the filesystem is read-only, so **saving settings and uploading images in production won’t persist**. The site will use defaults (plain background, default Listen URLs, default findable items). For persistent admin in production you’d add something like Vercel Blob (uploads) and Vercel KV or a database (config).
+3. **Production behaviour**: The game works in production. **Admin config is editable in production** when you use Vercel Blob for storage:
+   - In the [Vercel dashboard](https://vercel.com) go to your project → **Storage** → **Create Database** → choose **Blob**.
+   - Create a Blob store and link it to the project. Vercel will add `BLOB_READ_WRITE_TOKEN` automatically.
+   - Redeploy (or push a commit). After that, `/admin` saves (backgrounds, listen URLs, image credits, item positions) are stored in Blob and persist across deployments.
+   - Locally, without the token, config is still read/written to `data/site-config.json`. Image uploads in production still require external hosting (e.g. paste image URLs in admin); for file uploads you’d need a separate solution (e.g. upload to Blob and store the blob URL).
 
 ### Generating story audio (optional)
 
