@@ -88,7 +88,8 @@ npm start
 
 1. **Connect to Vercel**: In the [Vercel dashboard](https://vercel.com), import the GitHub repo `jason-faithinkids/lets-go-easter`. Use the default settings (Next.js, `npm run build`, `npm start`).
 2. **Deploy**: Pushing to `main` triggers a new deployment. Your production URL will be something like `https://lets-go-easter.vercel.app`.
-3. **Production behaviour**: The game works in production. **Admin config is editable in production** when you use Vercel Blob for storage:
+3. **Admin password (optional)**: To protect `/admin` with a password, set the environment variable `ADMIN_PASSWORD` (e.g. in Vercel → Project → Settings → Environment Variables). If set, visiting `/admin` redirects to `/admin/login` until the password is entered. The session lasts 7 days. If `ADMIN_PASSWORD` is not set, the admin is open (no login).
+4. **Production behaviour**: The game works in production. **Admin config is editable in production** when you use Vercel Blob for storage:
    - In the [Vercel dashboard](https://vercel.com) go to your project → **Storage** → **Create Database** → choose **Blob**.
    - Create a Blob store and link it to the project. Vercel will add `BLOB_READ_WRITE_TOKEN` automatically.
    - Redeploy (or push a commit). After that, `/admin` saves (backgrounds, listen URLs, image credits, item positions) are stored in Blob and persist across deployments.
