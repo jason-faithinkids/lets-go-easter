@@ -1,5 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
+import Link from "next/link"
+import Image from "next/image"
 import { Inter, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
@@ -45,6 +47,21 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans antialiased`}>
         {children}
+        <Link
+          href="https://faithinkids.org"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="fixed bottom-4 right-4 z-50 block opacity-90 hover:opacity-100 transition-opacity"
+          aria-label="Faith in Kids"
+        >
+          <Image
+            src="/images/fik-logo.webp"
+            alt="Faith in Kids"
+            width={40}
+            height={40}
+            className="h-6 w-auto sm:h-7"
+          />
+        </Link>
         <Analytics />
       </body>
     </html>

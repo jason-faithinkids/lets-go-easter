@@ -31,6 +31,7 @@ import type { SiteConfig } from "@/lib/config"
 
 const DEFAULT_LISTEN_URL = "https://faithinkids.org"
 const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
+const DEFAULT_DAY2_BACKGROUND = "/images/day%202.png"
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
@@ -118,6 +119,7 @@ const GOODY_BAG_ITEMS = [
     label: "Food",
     content:
       "Make three crosses out of bread sticks. Stick each cross together with cream cheese. Stick the crosses into a tub of cream cheese so that they can stand up.",
+    image: "/images/food-day2-placeholder.jpg",
   },
   {
     id: "listen",
@@ -125,6 +127,7 @@ const GOODY_BAG_ITEMS = [
     label: "Listen",
     content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened the day Jesus died on the cross. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: DEFAULT_LISTEN_URL,
+    image: "/images/podcast-cover-day2.jpg",
   },
   {
     id: "discuss",
@@ -177,7 +180,7 @@ export default function Day2Page() {
     ? config.backgroundDay2.startsWith("http")
       ? config.backgroundDay2
       : `/uploads/${config.backgroundDay2}`
-    : null
+    : DEFAULT_DAY2_BACKGROUND
   const items = (config?.itemsDay2 && config.itemsDay2.length > 0 ? config.itemsDay2 : DEFAULT_ITEMS) as typeof DEFAULT_ITEMS
 
   const unlockedParts = foundItems.length
@@ -268,11 +271,7 @@ export default function Day2Page() {
         }
 
         if (newFoundItems.length === items.length) {
-          setTimeout(() => {
-            setShowConfetti(true)
-            setShowGoodyBag(true)
-            setTimeout(() => setShowConfetti(false), 3000)
-          }, 1500)
+          // Confetti and goody bag show after audio finishes (via "Take me to the goody bag!" in story modal)
         }
       }
     },
@@ -376,9 +375,81 @@ export default function Day2Page() {
 
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-[#8B4513]">
-      {/* Border overlay */}
-      <div className="absolute inset-0 pointer-events-none z-10">
-        <Image src="/images/border.png" alt="LEGO border" fill className="object-cover" />
+      {/* Scene boundary: only the image area is visible; everything clipped to it */}
+      <div className="absolute inset-0 z-10 overflow-hidden">
+        <div
+          ref={containerRef}
+          className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing touch-none"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          <div
+            className="absolute w-[115%] h-[115%] transition-transform duration-100 ease-out"
+            style={{
+              transform: `translate(${-panPosition.x * 0.15}%, ${-panPosition.y * 0.15}%)`,
+            }}
+          >
+            {backgroundImageUrl ? (
+              <Image
+                src={backgroundImageUrl}
+                alt="Jesus on the Cross Scene"
+                fill
+                className="object-cover scale-110"
+                priority
+                draggable={false}
+              />
+            ) : (
+              <div
+                className="absolute inset-0 w-full h-full"
+                style={{ backgroundColor: PLAIN_BACKGROUND_COLOR }}
+              />
+            )}
+
+            {items.map((item) => (
+            <button
+              key={item.id}
+              onClick={(e) => handleItemClick(item.id, e)}
+              onTouchStart={(e) => {
+                e.stopPropagation()
+              }}
+              className={`
+                absolute transition-all duration-300 active:scale-125 sm:hover:scale-125 z-10 touch-manipulation
+                ${foundItems.includes(item.id) ? "opacity-0 pointer-events-none scale-150" : "opacity-100 sm:hover:brightness-110"}
+                ${hintItemId === item.id ? "animate-pulse scale-125" : ""}
+              `}
+              style={{
+                left: `${item.position.x}%`,
+                top: `${item.position.y}%`,
+                transform: "translate(-50%, -50%)",
+                filter:
+                  hintItemId === item.id ? "drop-shadow(0 0 20px #FFD700) drop-shadow(0 0 40px #FFD700)" : undefined,
+                minWidth: "48px",
+                minHeight: "48px",
+                padding: "8px",
+              }}
+              aria-label={`Find ${item.name}`}
+            >
+              <Image
+                src={item.image || "/placeholder.svg"}
+                alt={item.name}
+                width={60}
+                height={60}
+                className="object-contain drop-shadow-lg pointer-events-none w-12 h-12 sm:w-14 sm:h-14 md:w-[60px] md:h-[60px]"
+                draggable={false}
+              />
+            </button>
+          ))}
+          </div>
+        </div>
+        {/* Border overlay – inside scene boundary */}
+        <div className="absolute inset-0 pointer-events-none">
+          <Image src="/images/border.png" alt="LEGO border" fill className="object-cover" />
+        </div>
       </div>
 
       {/* Day title */}
@@ -458,77 +529,6 @@ export default function Day2Page() {
           </div>
         </div>
       )}
-
-      {/* Pannable container */}
-      <div
-        ref={containerRef}
-        className="absolute inset-0 overflow-hidden cursor-grab active:cursor-grabbing touch-none"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <div
-          className="absolute w-[150%] h-[150%] transition-transform duration-100 ease-out"
-          style={{
-            transform: `translate(${-panPosition.x * 0.5}%, ${-panPosition.y * 0.5}%)`,
-          }}
-        >
-          {backgroundImageUrl ? (
-            <Image
-              src={backgroundImageUrl}
-              alt="Jesus on the Cross Scene"
-              fill
-              className="object-cover scale-150"
-              priority
-              draggable={false}
-            />
-          ) : (
-            <div
-              className="absolute inset-0 scale-150 w-full h-full"
-              style={{ backgroundColor: PLAIN_BACKGROUND_COLOR }}
-            />
-          )}
-
-          {items.map((item) => (
-            <button
-              key={item.id}
-              onClick={(e) => handleItemClick(item.id, e)}
-              onTouchStart={(e) => {
-                e.stopPropagation()
-              }}
-              className={`
-                absolute transition-all duration-300 active:scale-125 sm:hover:scale-125 z-10 touch-manipulation
-                ${foundItems.includes(item.id) ? "opacity-0 pointer-events-none scale-150" : "opacity-100 sm:hover:brightness-110"}
-                ${hintItemId === item.id ? "animate-pulse scale-125" : ""}
-              `}
-              style={{
-                left: `${item.position.x}%`,
-                top: `${item.position.y}%`,
-                transform: "translate(-50%, -50%)",
-                filter:
-                  hintItemId === item.id ? "drop-shadow(0 0 20px #FFD700) drop-shadow(0 0 40px #FFD700)" : undefined,
-                minWidth: "48px",
-                minHeight: "48px",
-                padding: "8px",
-              }}
-              aria-label={`Find ${item.name}`}
-            >
-              <Image
-                src={item.image || "/placeholder.svg"}
-                alt={item.name}
-                width={60}
-                height={60}
-                className="object-contain drop-shadow-lg pointer-events-none w-12 h-12 sm:w-14 sm:h-14 md:w-[60px] md:h-[60px]"
-                draggable={false}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Navigation controller */}
       <div className="absolute bottom-24 sm:bottom-28 right-4 sm:right-8 z-20 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-1.5 sm:p-2">
@@ -615,6 +615,16 @@ export default function Day2Page() {
         </button>
       </div>
 
+      {/* Image copyright credit – links to admin */}
+      {(config?.imageCreditDay2 ?? "").trim() && (
+        <Link
+          href="/admin"
+          className="absolute bottom-2 left-2 z-20 rounded bg-black/50 px-2 py-1 text-[10px] text-white/90 no-underline hover:bg-black/60 hover:text-white sm:text-xs"
+        >
+          {config.imageCreditDay2!.trim()}
+        </Link>
+      )}
+
       {/* Story Modal - same as Day 1 */}
       {selectedStory && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 sm:p-6">
@@ -685,19 +695,36 @@ export default function Day2Page() {
               </div>
             )}
 
-            <button
-              onClick={() => setSelectedStory(null)}
-              disabled={audioCountdown > 0 && "audio" in selectedStory && !!selectedStory.audio}
-              className={`mt-4 sm:mt-6 w-full py-2.5 sm:py-3 rounded-xl font-bold transition-colors touch-manipulation ${
-                audioCountdown > 0 && "audio" in selectedStory && selectedStory.audio
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-[#4CAF50] text-white active:bg-[#45a049] sm:hover:bg-[#45a049]"
-              }`}
-            >
-              {audioCountdown > 0 && "audio" in selectedStory && selectedStory.audio
-                ? `Continue in ${audioCountdown}s...`
-                : "Continue Exploring"}
-            </button>
+            <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={() => setSelectedStory(null)}
+                disabled={audioCountdown > 0 && "audio" in selectedStory && !!selectedStory.audio}
+                className={`flex-1 py-2.5 sm:py-3 rounded-xl font-bold transition-colors touch-manipulation ${
+                  audioCountdown > 0 && "audio" in selectedStory && selectedStory.audio
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                    : "bg-[#4CAF50] text-white active:bg-[#45a049] sm:hover:bg-[#45a049]"
+                }`}
+              >
+                {audioCountdown > 0 && "audio" in selectedStory && selectedStory.audio
+                  ? `Continue in ${audioCountdown}s...`
+                  : "Keep Exploring"}
+              </button>
+              {foundItems.length === items.length &&
+                selectedStory?.id === STORY_PARTS[STORY_PARTS.length - 1]?.id &&
+                (!("audio" in selectedStory) || !selectedStory.audio || audioCountdown === 0) && (
+                  <button
+                    onClick={() => {
+                      setSelectedStory(null)
+                      setShowConfetti(true)
+                      setShowGoodyBag(true)
+                      setTimeout(() => setShowConfetti(false), 3000)
+                    }}
+                    className="flex-1 py-2.5 sm:py-3 rounded-xl font-bold bg-amber-500 text-white active:bg-amber-600 sm:hover:bg-amber-600 transition-colors touch-manipulation"
+                  >
+                    Take me to the goody bag!
+                  </button>
+                )}
+            </div>
           </div>
         </div>
       )}

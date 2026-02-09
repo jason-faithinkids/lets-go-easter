@@ -29,9 +29,11 @@ export function GoodyBagModal({
   onActiveItemChange,
 }: GoodyBagModalProps) {
   const [failedPreviewUrl, setFailedPreviewUrl] = useState<string | null>(null)
+  const [failedImageUrl, setFailedImageUrl] = useState<string | null>(null)
 
   useEffect(() => {
     setFailedPreviewUrl(null)
+    setFailedImageUrl(null)
   }, [activeItem])
 
   if (!open) return null
@@ -101,18 +103,45 @@ export function GoodyBagModal({
                       />
                     </div>
                   )}
-                  {item.image && (
-                    <div className="mb-3 rounded-lg overflow-hidden">
-                      <Image
-                        src={item.image}
-                        alt={item.label}
-                        width={600}
-                        height={400}
-                        className="w-full h-auto object-contain"
-                      />
+                  {/* Colouring: show PDF preview in image box (before content) */}
+                  {item.id === "colour" && item.downloadUrl?.toLowerCase().endsWith(".pdf") && (
+                    <div className="mb-3 rounded-lg overflow-hidden min-h-[160px] flex items-center justify-center bg-gray-50 border border-gray-200">
+                      {failedPreviewUrl === item.downloadUrl ? (
+                        <div className="flex flex-col items-center gap-2 py-6 text-gray-500 text-sm">
+                          <FileText className="w-10 h-10" />
+                          <span>Preview unavailable</span>
+                        </div>
+                      ) : (
+                        <img
+                          src={`/api/preview-pdf?url=${encodeURIComponent(item.downloadUrl)}`}
+                          alt={`Colouring sheet: ${item.label}`}
+                          className="w-full h-auto object-contain max-h-64"
+                          onError={() => setFailedPreviewUrl(item.downloadUrl!)}
+                        />
+                      )}
                     </div>
                   )}
-                  {!item.image && item.downloadUrl?.toLowerCase().endsWith(".pdf") && (
+                  {item.image && item.id !== "colour" && (
+                    <div className="mb-3 rounded-lg overflow-hidden min-h-[120px] flex items-center justify-center bg-gray-50 border border-gray-200">
+                      {failedImageUrl === item.image ? (
+                        <div className="flex flex-col items-center gap-2 py-6 text-gray-500 text-sm">
+                          <FileText className="w-10 h-10" />
+                          <span>Image coming soon</span>
+                        </div>
+                      ) : (
+                        <Image
+                          src={item.image}
+                          alt={item.label}
+                          width={600}
+                          height={400}
+                          className="w-full h-auto object-contain"
+                          onError={() => setFailedImageUrl(item.image!)}
+                          unoptimized={item.image.startsWith("/api/")}
+                        />
+                      )}
+                    </div>
+                  )}
+                  {!item.image && item.downloadUrl?.toLowerCase().endsWith(".pdf") && item.id !== "colour" && (
                     <div className="mb-3 rounded-lg overflow-hidden bg-gray-100 min-h-[120px] flex items-center justify-center">
                       {failedPreviewUrl === item.downloadUrl ? (
                         <div className="flex flex-col items-center gap-2 py-6 text-gray-500 text-sm">

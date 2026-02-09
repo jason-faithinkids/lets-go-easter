@@ -4,6 +4,18 @@ import Image from "next/image"
 export default function HomePage() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#3B9FD8]">
+      {/* Background image with blue overlay */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/background.webp"
+          alt=""
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 bg-[#3B9FD8]/60" aria-hidden />
+      </div>
       {/* Border overlay */}
       <div className="absolute inset-0 pointer-events-none z-10">
         <Image src="/images/border.png" alt="LEGO border" fill className="object-cover" />

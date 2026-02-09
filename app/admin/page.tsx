@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import type { SiteConfig, FindableItem } from "@/lib/config"
-import { Home, Save, Upload, Music, Palette, Search } from "lucide-react"
+import { MediaLibraryModal } from "@/components/MediaLibraryModal"
+import { Home, Save, Upload, Music, Palette, Search, ImageIcon } from "lucide-react"
 
 type BackgroundOption = { id: string; url: string; day: number | null }
 type ImageOption = { id: string; url: string; label: string }
@@ -51,10 +52,16 @@ export default function AdminPage() {
   const [itemsDay1, setItemsDay1] = useState<FindableItem[]>(DEFAULT_ITEMS_DAY1)
   const [itemsDay2, setItemsDay2] = useState<FindableItem[]>(DEFAULT_ITEMS_DAY2)
   const [itemsDay3, setItemsDay3] = useState<FindableItem[]>(DEFAULT_ITEMS_DAY3)
+  const [imageCreditDay1, setImageCreditDay1] = useState("")
+  const [imageCreditDay2, setImageCreditDay2] = useState("")
+  const [imageCreditDay3, setImageCreditDay3] = useState("")
   const [uploadDay, setUploadDay] = useState<"1" | "2" | "3">("1")
   const [uploading, setUploading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null)
+  const [libraryContext, setLibraryContext] = useState<
+    { type: "background"; day: 1 | 2 | 3 } | { type: "item"; day: 1 | 2 | 3; index: number } | null
+  >(null)
 
   const loadConfig = useCallback(async () => {
     try {
@@ -73,9 +80,19 @@ export default function AdminPage() {
       setBackgroundUrlDay1(bg1.startsWith("http") ? bg1 : "")
       setBackgroundUrlDay2(bg2.startsWith("http") ? bg2 : "")
       setBackgroundUrlDay3(bg3.startsWith("http") ? bg3 : "")
-      if (c.itemsDay1?.length) setItemsDay1(c.itemsDay1)
-      if (c.itemsDay2?.length) setItemsDay2(c.itemsDay2)
-      if (c.itemsDay3?.length) setItemsDay3(c.itemsDay3)
+      const norm = (it: FindableItem) => ({
+        ...it,
+        position: {
+          x: Number(it.position?.x) || 50,
+          y: Number(it.position?.y) || 50,
+        },
+      })
+      if (c.itemsDay1?.length) setItemsDay1(c.itemsDay1.map(norm))
+      if (c.itemsDay2?.length) setItemsDay2(c.itemsDay2.map(norm))
+      if (c.itemsDay3?.length) setItemsDay3(c.itemsDay3.map(norm))
+      setImageCreditDay1(c.imageCreditDay1 ?? "")
+      setImageCreditDay2(c.imageCreditDay2 ?? "")
+      setImageCreditDay3(c.imageCreditDay3 ?? "")
     } catch {
       setConfig(null)
     }
@@ -120,6 +137,9 @@ export default function AdminPage() {
           itemsDay1,
           itemsDay2,
           itemsDay3,
+          imageCreditDay1: imageCreditDay1 || null,
+          imageCreditDay2: imageCreditDay2 || null,
+          imageCreditDay3: imageCreditDay3 || null,
         }),
       })
       if (!res.ok) throw new Error("Save failed")
@@ -199,6 +219,19 @@ export default function AdminPage() {
     )
   }
 
+  const handleLibrarySelect = (value: string) => {
+    if (!libraryContext) return
+    if (libraryContext.type === "background") {
+      const setFile = libraryContext.day === 1 ? setBackgroundDay1 : libraryContext.day === 2 ? setBackgroundDay2 : setBackgroundDay3
+      const setUrl = libraryContext.day === 1 ? setBackgroundUrlDay1 : libraryContext.day === 2 ? setBackgroundUrlDay2 : setBackgroundUrlDay3
+      setFile(value)
+      setUrl("")
+    } else {
+      updateItem(libraryContext.day, libraryContext.index, { image: value })
+    }
+    setLibraryContext(null)
+  }
+
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
@@ -208,6 +241,12 @@ export default function AdminPage() {
             Easter Adventure – Admin
           </h1>
           <div className="flex items-center gap-2">
+            <Link href="/admin/media">
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <ImageIcon className="h-4 w-4" />
+                <span className="hidden sm:inline">Media Library</span>
+              </Button>
+            </Link>
             <Button
               onClick={handleSaveConfig}
               disabled={saving}
@@ -382,21 +421,81 @@ export default function AdminPage() {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-xs text-slate-500">Or choose from uploads</Label>
-                    <select
-                      value={fileValue}
-                      onChange={(e) => setFile(e.target.value)}
-                      className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
-                    >
-                      <option value="">—</option>
-                      {backgrounds.map((b) => (
-                        <option key={b.id} value={b.id}>
-                          {b.id}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="flex gap-2">
+                      <select
+                        value={fileValue}
+                        onChange={(e) => setFile(e.target.value)}
+                        className="flex-1 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-[#4CAF50] focus:outline-none focus:ring-1 focus:ring-[#4CAF50]"
+                      >
+                        <option value="">—</option>
+                        {backgrounds.map((b) => (
+                          <option key={b.id} value={b.id}>
+                            {b.id}
+                          </option>
+                        ))}
+                      </select>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0 gap-1"
+                        onClick={() => setLibraryContext({ type: "background", day: day as 1 | 2 | 3 })}
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                        Library
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Image copyright credit – per day */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Image copyright credit (per day)</CardTitle>
+            <CardDescription>
+              Shown at the bottom left on each day page. The credit links to this admin. Set one per day.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="imageCreditDay1" className="text-slate-600">
+                Day 1 credit
+              </Label>
+              <Input
+                id="imageCreditDay1"
+                value={imageCreditDay1}
+                onChange={(e) => setImageCreditDay1(e.target.value)}
+                placeholder="e.g. © Faith in Kids"
+                className="mt-1 max-w-md bg-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="imageCreditDay2" className="text-slate-600">
+                Day 2 credit
+              </Label>
+              <Input
+                id="imageCreditDay2"
+                value={imageCreditDay2}
+                onChange={(e) => setImageCreditDay2(e.target.value)}
+                placeholder="e.g. © Faith in Kids"
+                className="mt-1 max-w-md bg-white"
+              />
+            </div>
+            <div>
+              <Label htmlFor="imageCreditDay3" className="text-slate-600">
+                Day 3 credit
+              </Label>
+              <Input
+                id="imageCreditDay3"
+                value={imageCreditDay3}
+                onChange={(e) => setImageCreditDay3(e.target.value)}
+                placeholder="e.g. © Faith in Kids"
+                className="mt-1 max-w-md bg-white"
+              />
             </div>
           </CardContent>
         </Card>
@@ -409,7 +508,7 @@ export default function AdminPage() {
               Items to find – Day 1 (Jesus arrives)
             </CardTitle>
             <CardDescription>
-              Choose the image and label for each hidden object. Players tap these in the scene.
+              Choose the image and label for each hidden object. Drag the position sliders to move items on the scene (X% and Y%). Players tap these in the scene.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -435,6 +534,34 @@ export default function AdminPage() {
                     placeholder="Item name"
                     className="bg-white"
                   />
+                  <div className="flex items-center gap-2 pt-1">
+                    <Label className="text-xs text-slate-500 shrink-0">Position X %</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(item.position?.x) ?? 50}
+                      onChange={(e) =>
+                        updateItem(1, index, {
+                          position: { x: Number(e.target.value) || 0, y: Number(item.position?.y) ?? 50 },
+                        })
+                      }
+                      className="h-8 w-16 bg-white text-sm"
+                    />
+                    <Label className="text-xs text-slate-500 shrink-0">Y %</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(item.position?.y) ?? 50}
+                      onChange={(e) =>
+                        updateItem(1, index, {
+                          position: { x: Number(item.position?.x) ?? 50, y: Number(e.target.value) || 0 },
+                        })
+                      }
+                      className="h-8 w-16 bg-white text-sm"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
                   <div className="w-full sm:w-auto sm:min-w-[180px]">
@@ -458,6 +585,16 @@ export default function AdminPage() {
                       </option>
                     ))}
                   </select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => setLibraryContext({ type: "item", day: 1, index })}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    Library
+                  </Button>
                   <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50">
                     <Upload className="h-4 w-4" />
                     <span>Upload</span>
@@ -483,7 +620,7 @@ export default function AdminPage() {
               Items to find – Day 2 (The cross)
             </CardTitle>
             <CardDescription>
-              Choose the image and label for each hidden object.
+              Choose the image and label for each hidden object. Adjust X% and Y% to move items on the scene.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -509,6 +646,34 @@ export default function AdminPage() {
                     placeholder="Item name"
                     className="bg-white"
                   />
+                  <div className="flex items-center gap-2 pt-1">
+                    <Label className="text-xs text-slate-500 shrink-0">Position X %</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(item.position?.x) ?? 50}
+                      onChange={(e) =>
+                        updateItem(2, index, {
+                          position: { x: Number(e.target.value) || 0, y: Number(item.position?.y) ?? 50 },
+                        })
+                      }
+                      className="h-8 w-16 bg-white text-sm"
+                    />
+                    <Label className="text-xs text-slate-500 shrink-0">Y %</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(item.position?.y) ?? 50}
+                      onChange={(e) =>
+                        updateItem(2, index, {
+                          position: { x: Number(item.position?.x) ?? 50, y: Number(e.target.value) || 0 },
+                        })
+                      }
+                      className="h-8 w-16 bg-white text-sm"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
                   <div className="w-full sm:w-auto sm:min-w-[180px]">
@@ -532,6 +697,16 @@ export default function AdminPage() {
                       </option>
                     ))}
                   </select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => setLibraryContext({ type: "item", day: 2, index })}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    Library
+                  </Button>
                   <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50">
                     <Upload className="h-4 w-4" />
                     <span>Upload</span>
@@ -557,7 +732,7 @@ export default function AdminPage() {
               Items to find – Day 3 (Empty tomb)
             </CardTitle>
             <CardDescription>
-              Choose the image and label for each hidden object.
+              Choose the image and label for each hidden object. Adjust X% and Y% to move items on the scene.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -583,6 +758,34 @@ export default function AdminPage() {
                     placeholder="Item name"
                     className="bg-white"
                   />
+                  <div className="flex items-center gap-2 pt-1">
+                    <Label className="text-xs text-slate-500 shrink-0">Position X %</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(item.position?.x) ?? 50}
+                      onChange={(e) =>
+                        updateItem(3, index, {
+                          position: { x: Number(e.target.value) || 0, y: Number(item.position?.y) ?? 50 },
+                        })
+                      }
+                      className="h-8 w-16 bg-white text-sm"
+                    />
+                    <Label className="text-xs text-slate-500 shrink-0">Y %</Label>
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={Number(item.position?.y) ?? 50}
+                      onChange={(e) =>
+                        updateItem(3, index, {
+                          position: { x: Number(item.position?.x) ?? 50, y: Number(e.target.value) || 0 },
+                        })
+                      }
+                      className="h-8 w-16 bg-white text-sm"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
                   <div className="w-full sm:w-auto sm:min-w-[180px]">
@@ -606,6 +809,16 @@ export default function AdminPage() {
                       </option>
                     ))}
                   </select>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="gap-1"
+                    onClick={() => setLibraryContext({ type: "item", day: 3, index })}
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                    Library
+                  </Button>
                   <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm transition-colors hover:bg-slate-50">
                     <Upload className="h-4 w-4" />
                     <span>Upload</span>
@@ -622,6 +835,21 @@ export default function AdminPage() {
             ))}
           </CardContent>
         </Card>
+
+        {/* Media library modal */}
+        <MediaLibraryModal
+          open={libraryContext !== null}
+          onClose={() => setLibraryContext(null)}
+          type={libraryContext?.type ?? "background"}
+          onSelect={handleLibrarySelect}
+          title={
+            libraryContext?.type === "background"
+              ? `Choose Day ${libraryContext.day} background`
+              : libraryContext
+                ? `Choose Day ${libraryContext.day} item ${libraryContext.index + 1} image`
+                : undefined
+          }
+        />
 
         {/* Bottom save */}
         <div className="flex justify-center pb-8">

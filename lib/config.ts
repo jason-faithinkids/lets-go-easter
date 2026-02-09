@@ -15,6 +15,9 @@ export type SiteConfig = {
   itemsDay1?: FindableItem[] | null
   itemsDay2?: FindableItem[] | null
   itemsDay3?: FindableItem[] | null
+  imageCreditDay1?: string | null
+  imageCreditDay2?: string | null
+  imageCreditDay3?: string | null
 }
 
 export const DEFAULT_CONFIG: SiteConfig = {
@@ -27,6 +30,9 @@ export const DEFAULT_CONFIG: SiteConfig = {
   itemsDay1: null,
   itemsDay2: null,
   itemsDay3: null,
+  imageCreditDay1: null,
+  imageCreditDay2: null,
+  imageCreditDay3: null,
 }
 
 const CONFIG_PATH = "data/site-config.json"
