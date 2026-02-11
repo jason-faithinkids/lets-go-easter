@@ -35,11 +35,11 @@ const DEFAULT_DAY1_BACKGROUND = "/images/Day-1-Jesus-entering.png"
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
-  { id: 1, name: "Palm Branch", image: "/images/item-201.png", position: { x: 30, y: 20 } },
-  { id: 2, name: "Donkey", image: "/images/item-202.png", position: { x: 50, y: 60 } },
-  { id: 3, name: "Crown", image: "/images/item-203.png", position: { x: 70, y: 30 } },
-  { id: 4, name: "Crowd", image: "/images/item-201.png", position: { x: 25, y: 70 } },
-  { id: 5, name: "Cloaks", image: "/images/item-202.png", position: { x: 60, y: 50 } },
+  // { id: 1, name: "Palm Branch", image: "/images/item-201.png", position: { x: 30, y: 20 } },
+  // { id: 2, name: "Donkey", image: "/images/item-202.png", position: { x: 50, y: 60 } },
+  // { id: 3, name: "Crown", image: "/images/item-203.png", position: { x: 70, y: 30 } },
+  // { id: 4, name: "Crowd", image: "/images/item-201.png", position: { x: 25, y: 70 } },
+  // { id: 5, name: "Cloaks", image: "/images/item-202.png", position: { x: 60, y: 50 } },
 ]
 
 // Story parts with Bible text (from Story text for Digital Family Easter.md)
