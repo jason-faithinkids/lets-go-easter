@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useCallback, useRef, useEffect } from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -27,11 +28,37 @@ import {
   Volume2,
 } from "lucide-react"
 import { GoodyBagModal } from "@/components/GoodyBagModal"
+import { OrientationLock } from "@/components/OrientationLock"
 import type { SiteConfig } from "@/lib/config"
 
 const DEFAULT_LISTEN_URL = "https://faithinkids.org"
 const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
 const DEFAULT_DAY3_BACKGROUND = "/images/scene%203.png"
+
+  // export function OrientationLock() {
+  //   const [isLandscape, setIsLandscape] = useState(false);
+
+  //   useEffect(() => {
+  //     const checkOrientation = () => {
+  //       // Check if landscape AND a mobile-sized screen
+  //       const landscape = window.innerWidth > window.innerHeight && window.innerWidth < 1024;
+  //       setIsLandscape(landscape);
+  //     };
+
+  //     window.addEventListener('resize', checkOrientation);
+  //     checkOrientation(); // Initial check
+
+  //     return () => window.removeEventListener('resize', checkOrientation);
+  //   }, []);
+
+  //   if (!isLandscape) return null;
+
+  //   return (
+  //     <div className="fixed inset-0 z-[100] bg-white flex items-center justify-center text-white">
+  //        Your phone needs to be in portrait orientation to play the game.
+  //     </div>
+  //   );
+  // }
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
@@ -396,6 +423,7 @@ export default function Day3Page() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInventoryCollapsed, setIsInventoryCollapsed] = useState(false);
 
+
   const hintAngle = getHintDirection()
 
   return (
@@ -622,7 +650,7 @@ export default function Day3Page() {
       )}
 
       {/* Navigation controller */}
-      <div className="absolute bottom-24 sm:bottom-28 right-4 sm:right-8 z-20 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-1.5 sm:p-2">
+      <div className="absolute bottom-44 sm:bottom-28 right-4 sm:right-8 z-20 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-1.5 sm:p-2">
         <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
           <div />
           <button
@@ -664,7 +692,7 @@ export default function Day3Page() {
 
       {/* Bottom item bar */}
       <div className={`
-        absolute bottom-2 left-1/2 -translate-x-1/2 z-30 
+        absolute bottom-22 md:bottom-2 left-1/2 -translate-x-1/2 z-30 
         transition-all duration-500 ease-in-out
         ${isInventoryCollapsed ? 'translate-y-[106%]' : 'translate-y-0'}
       `}>
@@ -943,6 +971,9 @@ export default function Day3Page() {
           </div>
         </div>
       )}
+
+
+      <OrientationLock />
 
       {/* Confetti overlay */}
       {showConfetti && (

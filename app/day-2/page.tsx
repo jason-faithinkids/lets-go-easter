@@ -27,6 +27,7 @@ import {
   Volume2,
 } from "lucide-react"
 import { GoodyBagModal } from "@/components/GoodyBagModal"
+import { OrientationLock } from "@/components/OrientationLock"
 import type { SiteConfig } from "@/lib/config"
 
 const DEFAULT_LISTEN_URL = "https://faithinkids.org"
@@ -602,7 +603,7 @@ export default function Day2Page() {
       )}
 
       {/* Navigation controller */}
-      <div className="absolute bottom-24 sm:bottom-28 right-4 sm:right-8 z-20 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-1.5 sm:p-2">
+      <div className="absolute bottom-44 sm:bottom-28 right-4 sm:right-8 z-20 bg-white/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-xl p-1.5 sm:p-2">
         <div className="grid grid-cols-3 gap-0.5 sm:gap-1">
           <div />
           <button
@@ -645,7 +646,7 @@ export default function Day2Page() {
       {/* Bottom item bar */}
 
       <div className={`
-        absolute bottom-2 left-1/2 -translate-x-1/2 z-30 
+        absolute bottom-22 md:bottom-2 left-1/2 -translate-x-1/2 z-30 
         transition-all duration-500 ease-in-out
         ${isInventoryCollapsed ? 'translate-y-[106%]' : 'translate-y-0'}
       `}>
@@ -953,6 +954,8 @@ export default function Day2Page() {
         activeItem={activeGoodyItem}
         onActiveItemChange={setActiveGoodyItem}
       />
+
+      <OrientationLock />
     </div>
   )
 }
