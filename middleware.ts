@@ -46,9 +46,7 @@ export async function middleware(request: NextRequest) {
 
   const isAdminLogin = pathname === "/admin/login"
   const isAdminPage = pathname.startsWith("/admin")
-  const isProtectedApi =
-    pathname.startsWith("/api/config") ||
-    pathname.startsWith("/api/upload")
+  const isProtectedApi = pathname.startsWith("/api/upload")
 
   if (!isAdminPage && !isProtectedApi) {
     return NextResponse.next()
