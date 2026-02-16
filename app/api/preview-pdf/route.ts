@@ -3,19 +3,23 @@ import path from "path"
 import { existsSync } from "fs"
 import { readFile } from "fs/promises"
 
-// 1. Import the engine
+// 1. Corrected Import Syntax
 import * as pdfjs from "pdfjs-dist/legacy/build/pdf.mjs"
+// Use * as for the worker as well
+import * as PDFJSWorker from "pdfjs-dist/legacy/build/pdf.worker.mjs"
 
 const cache = new Map<string, Buffer>()
 
 export async function GET(request: NextRequest) {
-  // 2. FORCE FAKE WORKER MODE
-  // We explicitly do NOT set workerSrc. Instead, we use the 
-  // GlobalWorkerOptions to disable the external worker.
-  if (typeof window === "undefined") {
-    // In Node, setting this to null or a blank string 
-    // forces the library to use the 'FakeWorker'
-    (pdfjs as any).GlobalWorkerOptions.workerSrc = ""; 
+  // 2. The "Direct Injection" Fix
+  // Instead of workerSrc (a string path), we provide the worker logic directly
+  if (!(pdfjs.GlobalWorkerOptions as any).workerPort) {
+    try {
+      (pdfjs.GlobalWorkerOptions as any).workerPort = new (PDFJSWorker as any)();
+    } catch (e) {
+      console.warn("WorkerPort initialization failed, falling back to src:", e);
+      (pdfjs.GlobalWorkerOptions as any).workerSrc = ""; 
+    }
   }
 
   const url = request.nextUrl.searchParams.get("url")
@@ -39,7 +43,7 @@ export async function GET(request: NextRequest) {
   try {
     const pdfBuffer = await readFile(filePath)
     
-    // 3. Import converter
+    // 3. Dynamic import of the converter
     const mod = await import("pdf-to-img")
     const pdf = mod.pdf || mod.default?.pdf || mod.default
 
@@ -59,6 +63,9 @@ export async function GET(request: NextRequest) {
     })
   } catch (e) {
     console.error("PDF Preview Error:", e)
-    return NextResponse.json({ error: "Generation failed", details: String(e) }, { status: 500 })
+    return NextResponse.json({ 
+      error: "Generation failed", 
+      details: e instanceof Error ? e.message : String(e) 
+    }, { status: 500 })
   }
 }
