@@ -671,7 +671,7 @@ export default function Day3Page() {
         {/* The Toggle Tab - Now sits on TOP of the bar */}
         <button
           onClick={() => setIsInventoryCollapsed(!isInventoryCollapsed)}
-          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[90%] bg-white/80 backdrop-blur-md border-t border-x shadow-lg rounded-t-xl px-4 py-1 flex items-center group transition-colors hover:bg-white z-40"
+          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[90%] bg-white/80 backdrop-blur-md border-t border-x rounded-t-xl px-4 py-1 flex items-center group transition-colors hover:bg-white z-40"
         >
           <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-500 ${isInventoryCollapsed ? 'rotate-180' : ''}`} />
           <div className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 group-hover:text-yellow-600">
