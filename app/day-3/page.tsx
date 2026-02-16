@@ -476,7 +476,7 @@ export default function Day3Page() {
 
       {/* Day title */}
       <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg">
-        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 3: The Empty Tomb</h1>
+        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">TestDay 3: The Empty Tomb</h1>
       </div>
 
       <Link
