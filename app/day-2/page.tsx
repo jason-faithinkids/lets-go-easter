@@ -35,11 +35,11 @@ const DEFAULT_DAY2_BACKGROUND = "/images/day%202.png"
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
-  { id: 1, name: "Cross", image: "/images/item-201.png", position: { x: 25, y: 25 } },
-  { id: 2, name: "Nails", image: "/images/item-202.png", position: { x: 55, y: 45 } },
-  { id: 3, name: "Crown of Thorns", image: "/images/item-203.png", position: { x: 75, y: 20 } },
-  { id: 4, name: "Soldier", image: "/images/item-201.png", position: { x: 40, y: 65 } },
-  { id: 5, name: "Sign", image: "/images/item-202.png", position: { x: 60, y: 40 } },
+  // { id: 1, name: "Cross", image: "/images/item-201.png", position: { x: 25, y: 25 } },
+  // { id: 2, name: "Nails", image: "/images/item-202.png", position: { x: 55, y: 45 } },
+  // { id: 3, name: "Crown of Thorns", image: "/images/item-203.png", position: { x: 75, y: 20 } },
+  // { id: 4, name: "Soldier", image: "/images/item-201.png", position: { x: 40, y: 65 } },
+  // { id: 5, name: "Sign", image: "/images/item-202.png", position: { x: 60, y: 40 } },
 ]
 
 // Story parts with Bible text (from Story text for Digital Family Easter.md - Matthew 27:35-43, 50-51, 54)
@@ -102,7 +102,8 @@ const GOODY_BAG_ITEMS = [
     label: "Colour",
     content: "Colour in the picture of Jesus on the cross.",
     download: "Colouring Jesus' death.pdf",
-    downloadUrl: "/images/Colouring Jesus' death.pdf",
+    downloadUrl: "/images/colouring-jesus-resurrection.pdf",
+    previewUrl: "/images/colouring-jesus-resurrection.jpg",
   },
   {
     id: "craft",
@@ -111,7 +112,8 @@ const GOODY_BAG_ITEMS = [
     content:
       "Build a brick cross. You will need: a copy of the printout, scissors, glue and colouring pens. Colour in the bricks, then cut them out and stick them onto the cross.",
     download: "Build a brick cross.pdf",
-    downloadUrl: "/images/Build a brick cross.pdf",
+    downloadUrl: "/images/build-a-brick-cross.pdf",
+    previewUrl: "/images/build-a-brick-cross.jpg",
   },
   {
     id: "food",

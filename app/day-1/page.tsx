@@ -103,7 +103,8 @@ const GOODY_BAG_ITEMS = [
     label: "Colour",
     content: "Colour in the picture of Jesus entering Jerusalem on a donkey.",
     download: "Colouring Arrival in Jerusalem.pdf",
-    downloadUrl: "/images/Colouring Arrival in Jerusalem.pdf",
+    downloadUrl: "/images/colouring-arrival-in-jerusalem.pdf",
+    previewURL: "/images/colouring-arrival-in-jerusalem.jpg",
   },
   {
     id: "craft",
@@ -112,7 +113,8 @@ const GOODY_BAG_ITEMS = [
     content:
       "Make a donkey headband. You will need: the craft download printed, scissors, colouring pens, glue, strips of paper measuring 5x30cm to create the headband to go around your child's head. To make the donkey headband, children colour in their lego donkey ears (1x6 lego plates) and the lego palm leaves, cut them out and then stick them onto the head band with the title 'Jesus is the king God promised (Matthew 21:1-11)'.",
     download: "Donkey headband.pdf",
-    downloadUrl: "/images/Donkey headband.pdf",
+    downloadUrl: "/images/donkey-headband.pdf",
+    previewURL: "/images/donkey-headband.jpg",
   },
   {
     id: "food",

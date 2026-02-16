@@ -35,10 +35,10 @@ const DEFAULT_DAY3_BACKGROUND = "/images/scene%203.png"
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
-  { id: 1, name: "Cross", image: "/images/item-201.png", position: { x: 20, y: 15 } },
-  { id: 2, name: "Green Brick", image: "/images/item-202.png", position: { x: 70, y: 75 } },
-  { id: 3, name: "Burial Cloths", image: "/images/item-203.png", position: { x: 45, y: 50 } },
-  { id: 4, name: "Golden Cross", image: "/images/item-201.png", position: { x: 85, y: 30 } },
+  // { id: 1, name: "Cross", image: "/images/item-201.png", position: { x: 20, y: 15 } },
+  // { id: 2, name: "Green Brick", image: "/images/item-202.png", position: { x: 70, y: 75 } },
+  // { id: 3, name: "Burial Cloths", image: "/images/item-203.png", position: { x: 45, y: 50 } },
+  // { id: 4, name: "Golden Cross", image: "/images/item-201.png", position: { x: 85, y: 30 } },
 ]
 
 // Story parts with Bible text
@@ -95,7 +95,8 @@ const GOODY_BAG_ITEMS = [
     label: "Colour",
     content: "Colour in the picture of the angel and women in front of the empty tomb.",
     download: "Colouring Jesus' resurrection.pdf",
-    downloadUrl: "/images/Colouring Jesus' resurrection.pdf",
+    downloadUrl: "/images/colouring-jesus-resurrection.pdf",
+    previewUrl: "/images/colouring-jesus-resurrection.jpg",
   },
   {
     id: "craft",

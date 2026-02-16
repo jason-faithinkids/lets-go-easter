@@ -106,7 +106,13 @@ export function GoodyBagModal({
                   {/* Colouring: show PDF preview in image box (before content) */}
                   {item.id === "colour" && item.downloadUrl?.toLowerCase().endsWith(".pdf") && (
                     <div className="mb-3 rounded-lg overflow-hidden min-h-[160px] flex items-center justify-center bg-gray-50 border border-gray-200">
-                      {failedPreviewUrl === item.downloadUrl ? (
+                      {/*{failedPreviewUrl === item.downloadUrl ? (
+                        <img
+                          src={`${encodeURIComponent(item.downloadUrl)}`}
+                          alt={`Colouring sheet: ${item.label}`}
+                          className="w-full h-auto object-contain max-h-64"
+                          onError={() => setFailedPreviewUrl(item.downloadUrl!)}
+                        />
                         <div className="flex flex-col items-center gap-2 py-6 text-gray-500 text-sm">
                           <FileText className="w-10 h-10" />
                           <span>Preview unavailable</span>
@@ -118,7 +124,12 @@ export function GoodyBagModal({
                           className="w-full h-auto object-contain max-h-64"
                           onError={() => setFailedPreviewUrl(item.downloadUrl!)}
                         />
-                      )}
+                      )}*/}
+                     <img
+                          src={`${encodeURIComponent(item.previewURL)}`}
+                          alt={`Colouring sheet: ${item.label}`}
+                          className="w-full h-auto object-contain max-h-64"
+                        />
                     </div>
                   )}
                   {item.image && item.id !== "colour" && (
@@ -143,7 +154,7 @@ export function GoodyBagModal({
                   )}
                   {!item.image && item.downloadUrl?.toLowerCase().endsWith(".pdf") && item.id !== "colour" && (
                     <div className="mb-3 rounded-lg overflow-hidden bg-gray-100 min-h-[120px] flex items-center justify-center">
-                      {failedPreviewUrl === item.downloadUrl ? (
+                      {/*{failedPreviewUrl === item.downloadUrl ? (
                         <div className="flex flex-col items-center gap-2 py-6 text-gray-500 text-sm">
                           <FileText className="w-10 h-10" />
                           <span>Preview unavailable</span>
@@ -155,7 +166,13 @@ export function GoodyBagModal({
                           className="w-full h-auto object-contain max-h-64"
                           onError={() => setFailedPreviewUrl(item.downloadUrl!)}
                         />
-                      )}
+                      )}*/}
+                    <img
+                          src={`${encodeURIComponent(item.previewURL)}`}
+                          alt={`Colouring sheet: ${item.label}`}
+                          className="w-full h-auto object-contain max-h-64"
+                        />
+                    
                     </div>
                   )}
                   <div className="text-gray-700 text-xs sm:text-sm leading-relaxed whitespace-pre-line">
