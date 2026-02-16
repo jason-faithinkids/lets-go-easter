@@ -393,6 +393,9 @@ export default function Day3Page() {
     return angle
   }
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isInventoryCollapsed, setIsInventoryCollapsed] = useState(false);
+
   const hintAngle = getHintDirection()
 
   return (
@@ -475,7 +478,7 @@ export default function Day3Page() {
       </div>
 
       {/* Day title */}
-      <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg">
+      <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg z-90">
         <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">TestDay 3: The Empty Tomb</h1>
       </div>
 
@@ -487,7 +490,73 @@ export default function Day3Page() {
         <span className="font-medium text-xs sm:text-base hidden xs:inline">Home</span>
       </Link>
 
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 bg-white/95 px-2 sm:px-4 md:px-8 pt-3 sm:pt-4 md:pt-5 pb-6 sm:pb-8 md:pb-10 rounded-b-2xl shadow-lg flex items-start gap-1 sm:gap-2 md:gap-4 overflow-x-auto max-w-[95vw] scrollbar-hide">
+      <div className={`
+        absolute top-8 sm:top-0 sm:left-1/2 sm:-translate-x-1/2 z-30 
+        bg-white/95 rounded-b-2xl shadow-lg transition-all duration-500 ease-in-out
+        ${isCollapsed ? '-translate-y-[90%] md:-translate-y-[80%]' : 'translate-y-0'}
+        px-2 sm:px-4 md:px-8 pt-3 sm:pt-4 md:pt-5 pb-8 sm:pb-10 md:pb-12
+        flex items-start gap-1 sm:gap-2 md:gap-4 overflow-x-auto max-w-[95vw] scrollbar-hide
+      `}>
+        {/* Wrap existing content in a div that fades out when collapsed */}
+        <div className={`sm:flex items-start gap-1 sm:gap-2 md:gap-4 transition-opacity duration-300 ${isCollapsed ? 'opacity-0' : 'opacity-100'}`}>
+          {STORY_PARTS.map((part, index) => (
+            <div key={part.id} className="relative flex md:flex-col items-center flex-shrink-0 mb-6 md:mb-0">
+              <button
+                onClick={() => handleStoryClick(index)}
+                disabled={index >= unlockedParts}
+                className={`
+                  px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-lg text-xs md:text-sm font-medium transition-all flex items-center gap-1 sm:gap-2 touch-manipulation
+                  ${
+                    index < unlockedParts
+                      ? "bg-[#4CAF50] text-white active:bg-[#45a049] sm:hover:bg-[#45a049] cursor-pointer"
+                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  }
+                `}
+              >
+                {index < unlockedParts ? (
+                  <>
+                    <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+                    <Volume2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                  </>
+                ) : (
+                  <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
+                )}
+                <span className="whitespace-nowrap">{part.title}</span>
+              </button>
+              {index >= unlockedParts && (
+                <div className="absolute -bottom-4 sm:-bottom-5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-red-500 text-white px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] whitespace-nowrap shadow-md">
+                  <Lock className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                  <span className="hidden sm:inline">LOCKED</span>
+                </div>
+              )}
+            </div>
+          ))}
+
+          <button
+            onClick={() => foundItems.length === items.length && setShowGoodyBag(true)}
+            className={`ml-1 sm:ml-2 p-2 sm:p-2.5 md:p-3 rounded-full transition-all touch-manipulation flex-shrink-0 ml-5 md:ml-0 ${
+              foundItems.length === items.length
+                ? "bg-red-500 active:bg-red-600 sm:hover:bg-red-600 cursor-pointer animate-bounce"
+                : "bg-gray-200 cursor-not-allowed"
+            }`}
+          >
+            <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === items.length ? "text-white" : "text-gray-400"}`} />
+          </button>
+        </div>
+
+        {/* The Toggle Tab - Always visible at the bottom of the container */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute w-full flex bottom-2 left-1/2 -translate-x-1/2 translate-y-[40%] bg-white/95 border-b border-x shadow-md rounded-b-xl px-4 py-1 items-center justify-center group transition-colors hover:bg-white"
+        >
+          <div className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-0.5 group-hover:text-[#4CAF50]">
+            {isCollapsed ? "Menu" : "Hide"}
+          </div>
+          <ChevronUp className={`w-4 h-4 text-gray-500 transition-transform duration-500 ${isCollapsed ? 'rotate-180' : ''}`} />
+        </button>
+      </div>
+
+      {/*<div className="absolute top-0 left-1/2 -translate-x-1/2 z-30 bg-white/95 px-2 sm:px-4 md:px-8 pt-3 sm:pt-4 md:pt-5 pb-6 sm:pb-8 md:pb-10 rounded-b-2xl shadow-lg flex items-start gap-1 sm:gap-2 md:gap-4 overflow-x-auto max-w-[95vw] scrollbar-hide">
         {STORY_PARTS.map((part, index) => (
           <div key={part.id} className="relative flex flex-col items-center flex-shrink-0">
             <button
@@ -531,7 +600,7 @@ export default function Day3Page() {
         >
           <Gift className={`w-5 h-5 sm:w-6 sm:h-6 ${foundItems.length === items.length ? "text-white" : "text-gray-400"}`} />
         </button>
-      </div>
+      </div>*/}
 
       {/* Hint arrow */}
       {hintItemId && hintAngle !== null && (
@@ -594,7 +663,72 @@ export default function Day3Page() {
       </div>
 
       {/* Bottom item bar */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-2 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4 rounded-full sm:rounded-full shadow-xl flex items-center gap-2 sm:gap-4 md:gap-6 max-w-[95vw] overflow-x-auto scrollbar-hide">
+      <div className={`
+        absolute bottom-2 left-1/2 -translate-x-1/2 z-30 
+        transition-all duration-500 ease-in-out
+        ${isInventoryCollapsed ? 'translate-y-[106%]' : 'translate-y-0'}
+      `}>
+        {/* The Toggle Tab - Now sits on TOP of the bar */}
+        <button
+          onClick={() => setIsInventoryCollapsed(!isInventoryCollapsed)}
+          className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[90%] bg-white/80 backdrop-blur-md border-t border-x shadow-lg rounded-t-xl px-4 py-1 flex items-center group transition-colors hover:bg-white z-40"
+        >
+          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-500 ${isInventoryCollapsed ? 'rotate-180' : ''}`} />
+          <div className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5 group-hover:text-yellow-600">
+            {isInventoryCollapsed ? "Items" : "Hide"}
+          </div>
+        </button>
+
+        {/* Main Item Bar */}
+        <div className={`
+          bg-white/80 backdrop-blur-md px-2 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4 
+          rounded-full shadow-xl flex items-center gap-2 sm:gap-4 md:gap-6 
+          max-w-[95vw] overflow-x-auto scrollbar-hide transition-opacity duration-300
+          ${isInventoryCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+        `}>
+          {items.map((item) => (
+            <div key={item.id} className="flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0">
+              <div
+                className={`
+                  w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg flex items-center justify-center transition-all duration-300
+                  ${foundItems.includes(item.id) ? "opacity-100" : "opacity-30"}
+                `}
+              >
+                <Image
+                  src={item.image || "/placeholder.svg"}
+                  alt={item.name}
+                  width={60}
+                  height={60}
+                  className={`object-contain w-full h-full ${!foundItems.includes(item.id) ? "grayscale brightness-50" : ""}`}
+                />
+              </div>
+              <span className="text-[10px] md:text-xs font-medium text-gray-700 whitespace-nowrap">
+                {foundItems.includes(item.id) ? "Found!" : `Item ${item.id}`}
+              </span>
+            </div>
+          ))}
+
+          <div className="w-px h-12 sm:h-14 md:h-16 bg-gray-300 mx-1 sm:mx-2 flex-shrink-0" />
+
+          <button
+            onClick={handleHint}
+            disabled={foundItems.length === items.length}
+            className="bg-yellow-400 text-yellow-900 px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg active:bg-yellow-300 sm:hover:bg-yellow-300 transition-colors shadow-md flex items-center gap-1 sm:gap-2 disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation flex-shrink-0"
+          >
+            <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Hint</span>
+          </button>
+
+          <button
+            onClick={() => setShowHelp(true)}
+            className="bg-[#4CAF50] text-white px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-full font-bold text-sm sm:text-base md:text-lg active:bg-[#45a049] sm:hover:bg-[#45a049] transition-colors shadow-md flex items-center gap-1 sm:gap-2 touch-manipulation flex-shrink-0"
+          >
+            <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden sm:inline">Help</span>
+          </button>
+        </div>
+      </div>
+     {/* <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-2 sm:px-4 md:px-8 py-2 sm:py-3 md:py-4 rounded-full sm:rounded-full shadow-xl flex items-center gap-2 sm:gap-4 md:gap-6 max-w-[95vw] overflow-x-auto scrollbar-hide">
         {items.map((item) => (
           <div key={item.id} className="flex flex-col items-center gap-0.5 sm:gap-1 flex-shrink-0">
             <div
@@ -635,7 +769,7 @@ export default function Day3Page() {
           <HelpCircle className="w-4 h-4 sm:w-5 sm:h-5" />
           <span className="hidden sm:inline">Help</span>
         </button>
-      </div>
+      </div>*/}
 
       {/* Image copyright credit – links to admin */}
       {(config?.imageCreditDay3 ?? "").trim() && (
