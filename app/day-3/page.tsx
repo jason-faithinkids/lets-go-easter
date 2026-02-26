@@ -33,7 +33,7 @@ import type { SiteConfig } from "@/lib/config"
 
 const DEFAULT_LISTEN_URL = "https://faithinkids.org"
 const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
-const DEFAULT_DAY3_BACKGROUND = "/images/scene%203.png"
+const DEFAULT_DAY3_BACKGROUND = "/images/scene-3.jpg"
 
   // export function OrientationLock() {
   //   const [isLandscape, setIsLandscape] = useState(false);

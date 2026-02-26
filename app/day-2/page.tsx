@@ -32,7 +32,7 @@ import type { SiteConfig } from "@/lib/config"
 
 const DEFAULT_LISTEN_URL = "https://faithinkids.org"
 const PLAIN_BACKGROUND_COLOR = "#E8DCC4"
-const DEFAULT_DAY2_BACKGROUND = "/images/day%202.png"
+const DEFAULT_DAY2_BACKGROUND = "/images/day-2.jpg"
 
 // Default findable items (used when config has no overrides)
 const DEFAULT_ITEMS = [
