@@ -758,7 +758,7 @@ export default function Day2Page() {
       {(config?.imageCreditDay2 ?? "").trim() && (
         <Link
           href="/admin"
-          className="absolute bottom-2 left-2 z-20 rounded bg-black/50 px-2 py-1 text-[10px] text-white/90 no-underline hover:bg-black/60 hover:text-white sm:text-xs"
+          className="fixed md:absolute bottom-4 w-1/2 md:w-auto md:bottom-2 left-2 z-20 rounded bg-black/50 px-2 py-1 text-[9px] text-white/90 no-underline hover:bg-black/60 hover:text-white sm:text-[8px]"
         >
           {config.imageCreditDay2!.trim()}
         </Link>
