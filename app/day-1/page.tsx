@@ -462,7 +462,7 @@ export default function Day1Page() {
                 src={backgroundImageUrl}
                 alt="Jesus Arrives in Jerusalem Scene"
                 fill
-                className="object-fill md:object-cover scale-110"
+                className="object-fill scale-110"
                 priority
                 draggable={false}
               />
