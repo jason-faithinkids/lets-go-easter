@@ -114,7 +114,7 @@ const GOODY_BAG_ITEMS = [
       "Build a brick cross. You will need: a copy of the printout, scissors, glue and colouring pens. Colour in the bricks, then cut them out and stick them onto the cross.",
     download: "Build a brick cross.pdf",
     downloadUrl: "/images/build-a-brick-cross.pdf",
-    previewUrl: "/images/build-a-brick-cross.jpg",
+    previewUrl: "/images/day-2-craft.jpg",
   },
   {
     id: "food",
@@ -122,7 +122,7 @@ const GOODY_BAG_ITEMS = [
     label: "Food",
     content:
       "Make three crosses out of bread sticks. Stick each cross together with cream cheese. Stick the crosses into a tub of cream cheese so that they can stand up.",
-    image: "/images/food-day2-placeholder.jpg",
+    image: "/images/day-2-food.jpg",
   },
   {
     id: "listen",
@@ -130,7 +130,7 @@ const GOODY_BAG_ITEMS = [
     label: "Listen",
     content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened the day Jesus died on the cross. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: DEFAULT_LISTEN_URL,
-    image: "/images/podcast-cover-day2.jpg",
+    image: "/images/2026-FiK4K-EASTER2.jpg",
   },
   {
     id: "discuss",
@@ -144,7 +144,7 @@ Use the picture and the verse to answer the following questions:
 • Why do you think the soldiers were frightened?
 
 A prayer to pray: Dear God, thank you that the soldiers clearly saw that Jesus was the Son of God. Please help us to live trusting this. Amen.`,
-    image: "/images/Jesus on the cross Image 1.jpeg",
+    image: "/images/jesus-on-the cross-image.jpeg",
   },
 ]
 

@@ -126,7 +126,7 @@ export function GoodyBagModal({
                         />
                       )}*/}
                      <img
-                          src={`${encodeURIComponent(item.previewURL)}`}
+                          src={`${encodeURIComponent(item.previewUrl)}`}
                           alt={`Colouring sheet: ${item.label}`}
                           className="w-full h-auto object-contain max-h-64"
                         />
@@ -168,7 +168,7 @@ export function GoodyBagModal({
                         />
                       )}*/}
                     <img
-                          src={`${encodeURIComponent(item.previewURL)}`}
+                          src={`${encodeURIComponent(item.previewUrl)}`}
                           alt={`Colouring sheet: ${item.label}`}
                           className="w-full h-auto object-contain max-h-64"
                         />

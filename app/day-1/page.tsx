@@ -105,7 +105,7 @@ const GOODY_BAG_ITEMS = [
     content: "Colour in the picture of Jesus entering Jerusalem on a donkey.",
     download: "Colouring Arrival in Jerusalem.pdf",
     downloadUrl: "/images/colouring-arrival-in-jerusalem.pdf",
-    previewURL: "/images/colouring-arrival-in-jerusalem.jpg",
+    previewUrl: "/images/colouring-arrival-in-jerusalem.jpg",
   },
   {
     id: "craft",
@@ -115,7 +115,7 @@ const GOODY_BAG_ITEMS = [
       "Make a donkey headband. You will need: the craft download printed, scissors, colouring pens, glue, strips of paper measuring 5x30cm to create the headband to go around your child's head. To make the donkey headband, children colour in their lego donkey ears (1x6 lego plates) and the lego palm leaves, cut them out and then stick them onto the head band with the title 'Jesus is the king God promised (Matthew 21:1-11)'.",
     download: "Donkey headband.pdf",
     downloadUrl: "/images/donkey-headband.pdf",
-    previewURL: "/images/donkey-headband.jpg",
+    previewUrl: "/images/day-1-craft.jpg",
   },
   {
     id: "food",
@@ -124,7 +124,7 @@ const GOODY_BAG_ITEMS = [
     content:
       "Make some animal biscuits using this simple recipe and any animal cookie cutters you have at home (don't worry if you don't have a donkey biscuit cutter).",
     link: "https://www.sainsburys.co.uk/gol-ui/recipes/easy-biscuits",
-    image: "/images/food-day1-placeholder.jpg",
+    image: "/images/day-1-food.jpg",
   },
   {
     id: "listen",
@@ -132,7 +132,7 @@ const GOODY_BAG_ITEMS = [
     label: "Listen",
     content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to have fun exploring the story of Jesus' arrival into Jerusalem. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: DEFAULT_LISTEN_URL,
-    image: "/images/podcast-cover-day1.jpg",
+    image: "/images/2026-FiK4K-EASTER1.jpg",
   },
   {
     id: "discuss",
@@ -147,7 +147,7 @@ Use the picture and the verse to answer the following questions:
 • The crowd waved palm branches to welcome Jesus. How would you expect a crowd to greet a king?
 
 A prayer to pray: Dear God, thank you that Jesus is the king you promised to send. Amen.`,
-    image: "/images/background-20-20scrolling-20image.jpeg",
+    image: "/images/jesus-entering-jerusalem-copyright.jpg",
   },
 ]
 
@@ -425,16 +425,25 @@ export default function Day1Page() {
   const hintAngle = getHintDirection()
 
   const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // New state
+
+  useEffect(() => {
+    setIsMounted(true); // Flag that we are now on the client
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // If not mounted yet, return a consistent "loading" or "desktop" version 
+  // that matches exactly what the server would produce.
+  if (!isMounted) {
+    return <div className="h-screen w-screen bg-[#3B9FD8]" />; 
+  }
 
   const multX = isMobile ? 0.8 : 0.13; // 400% width vs 115% width
   const multY = isMobile ? 0.333 : 0.13; // 150% vs 115%
 
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile(); // Check on mount
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
 
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-[#3B9FD8]">
@@ -462,7 +471,7 @@ export default function Day1Page() {
                 src={backgroundImageUrl}
                 alt="Jesus Arrives in Jerusalem Scene"
                 fill
-                className="object-fill scale-110"
+                className="object-cover scale-110"
                 priority
                 draggable={false}
               />

@@ -132,7 +132,8 @@ const GOODY_BAG_ITEMS = [
     content:
       "Angel craft. You will need: a copy of the printout, scissors, glue and colouring pens (optional: foil, glitter). Colour in the angel and cut it out. Then design some angel wing shapes on the Lego board before cutting them out to stick behind the angel.",
     download: "Angel craft.pdf",
-    downloadUrl: "/images/Angel craft.pdf",
+    downloadUrl: "/images/angel-craft.pdf",
+    previewUrl: "/images/day-3-craft.jpg",
   },
   {
     id: "food",
@@ -140,7 +141,7 @@ const GOODY_BAG_ITEMS = [
     label: "Food",
     content:
       "Make a tomb out of toast, using jam to stick the pieces together. Cut one piece of toast into a circle to be the stone and have it rolled to one side to see that the tomb is empty.",
-    image: "/images/food-day3-placeholder.jpg",
+    image: "/images/day-3-food.jpg",
   },
   {
     id: "listen",
@@ -148,7 +149,7 @@ const GOODY_BAG_ITEMS = [
     label: "Listen",
     content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: DEFAULT_LISTEN_URL,
-    image: "/images/podcast-cover-day3.jpg",
+    image: "/images/2026-FiK4K-EASTER3.jpg",
   },
   {
     id: "discuss",
@@ -162,7 +163,7 @@ Use the picture and the verse to answer the following questions:
 • Why wasn't Jesus in the tomb?
 
 A prayer to pray: Dear God, thank you for the good news that King Jesus didn't stay dead but was raised back to life. Amen.`,
-    image: "/images/Angel at the tomb Sun morning Image 1.jpeg",
+    image: "/images/angel-at-the-tomb-sun-morning.jpeg",
   },
 ]
 
