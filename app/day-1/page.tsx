@@ -426,7 +426,7 @@ export default function Day1Page() {
 
   const [isMobile, setIsMobile] = useState(false);
 
-  const multX = isMobile ? 0.75 : 0.13; // 400% width vs 115% width
+  const multX = isMobile ? 0.8 : 0.13; // 400% width vs 115% width
   const multY = isMobile ? 0.333 : 0.13; // 150% vs 115%
 
   useEffect(() => {
@@ -452,7 +452,7 @@ export default function Day1Page() {
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="absolute w-[400%] h-[150%] md:w-[115%] md:h-[115%] transition-transform duration-100 ease-out"
+            className="absolute w-[500%] h-[150%] md:w-[115%] md:h-[115%] transition-transform duration-100 ease-out"
             style={{
               transform: `translate(${-panPosition.x * multX}%, ${-panPosition.y * multY}%)`,
             }}
@@ -462,7 +462,7 @@ export default function Day1Page() {
                 src={backgroundImageUrl}
                 alt="Jesus Arrives in Jerusalem Scene"
                 fill
-                className="object-cover scale-110"
+                className="object-fill md:object-cover scale-110"
                 priority
                 draggable={false}
               />
