@@ -51,7 +51,7 @@ export default function RootLayout({
           href="https://faithinkids.org"
           target="_blank"
           rel="noopener noreferrer"
-          className="fixed bottom-4 right-4 z-50 block opacity-90 hover:opacity-100 transition-opacity"
+          className="fixed bottom-4 md:bottom-4 right-4 z-50 block opacity-90 hover:opacity-100 transition-opacity"
           aria-label="Faith in Kids"
         >
           <Image
