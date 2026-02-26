@@ -308,18 +308,23 @@ export default function Day1Page() {
   }
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return
+    if (!isDragging) return;
 
-    const dx = (dragStart.x - e.clientX) * 0.15
-    const dy = (dragStart.y - e.clientY) * 0.15
+    // Use a higher sensitivity on mobile to match the 400% scale
+    const sensitivity = isMobile ? 4 : 0.15;
+
+    console.log(sensitivity);
+
+    const dx = (dragStart.x - e.clientX) * sensitivity;
+    const dy = (dragStart.y - e.clientY) * sensitivity;
 
     setPanPosition((prev) => ({
       x: Math.max(0, Math.min(100, prev.x + dx)),
       y: Math.max(0, Math.min(100, prev.y + dy)),
-    }))
+    }));
 
-    setDragStart({ x: e.clientX, y: e.clientY })
-  }
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
 
   const handleMouseUp = () => {
     setIsDragging(false)
@@ -331,21 +336,57 @@ export default function Day1Page() {
     setDragStart({ x: touch.clientX, y: touch.clientY })
   }
 
+  // const handleTouchMove = (e: React.TouchEvent) => {
+  //   if (!isDragging) return
+  //   e.preventDefault()
+
+  //   const touch = e.touches[0]
+  //   // const dx = (dragStart.x - touch.clientX) * 0.15
+  //   // const dy = (dragStart.y - touch.clientY) * 0.15
+
+  //   // Use a higher sensitivity on mobile to match the 400% scale
+  //   const sensitivity = isMobile ? 4 : 0.15;
+
+  //   console.log(sensitivity);
+
+  //   const dx = (dragStart.x - touch.clientX) * sensitivity;
+  //   const dy = (dragStart.y - touch.clientY) * sensitivity;
+
+  //   console.log(dx);
+
+  //   setPanPosition((prev) => ({
+  //     x: Math.max(0, Math.min(100, prev.x + dx)),
+  //     y: Math.max(0, Math.min(100, prev.y + dy)),
+  //   }))
+
+  //   setDragStart({ x: touch.clientX, y: touch.clientY })
+  // }
+
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return
-    e.preventDefault()
+  if (!isDragging) return
+  // Prevent scrolling the actual webpage while dragging the map
+  e.preventDefault()
 
-    const touch = e.touches[0]
-    const dx = (dragStart.x - touch.clientX) * 0.15
-    const dy = (dragStart.y - touch.clientY) * 0.15
+  const touch = e.touches[0]
+  
+  // High sensitivity for the 400% mobile scale, 
+  // lower for the 115% desktop scale.
+  const sensitivity = isMobile ? 0.15 : 0.15
 
-    setPanPosition((prev) => ({
-      x: Math.max(0, Math.min(100, prev.x + dx)),
-      y: Math.max(0, Math.min(100, prev.y + dy)),
-    }))
+  console.log(sensitivity);
 
-    setDragStart({ x: touch.clientX, y: touch.clientY })
-  }
+  // Calculate how far the finger moved since the last event
+  const dx = (dragStart.x - touch.clientX) * sensitivity
+  const dy = (dragStart.y - touch.clientY) * sensitivity
+
+  setPanPosition((prev) => ({
+    x: Math.max(0, Math.min(100, prev.x + dx)),
+    y: Math.max(0, Math.min(100, prev.y + dy)),
+  }))
+
+  // Update the reference point for the next movement frame
+  setDragStart({ x: touch.clientX, y: touch.clientY })
+}
 
   const handleTouchEnd = () => {
     setIsDragging(false)
@@ -383,6 +424,18 @@ export default function Day1Page() {
 
   const hintAngle = getHintDirection()
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  const multX = isMobile ? 0.75 : 0.13; // 400% width vs 115% width
+  const multY = isMobile ? 0.333 : 0.13; // 150% vs 115%
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile(); // Check on mount
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-[#3B9FD8]">
       {/* Scene boundary: only the image area is visible; everything clipped to it */}
@@ -399,9 +452,9 @@ export default function Day1Page() {
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="absolute w-[115%] h-[115%] transition-transform duration-100 ease-out"
+            className="absolute w-[400%] h-[150%] md:w-[115%] md:h-[115%] transition-transform duration-100 ease-out"
             style={{
-              transform: `translate(${-panPosition.x * 0.15}%, ${-panPosition.y * 0.15}%)`,
+              transform: `translate(${-panPosition.x * multX}%, ${-panPosition.y * multY}%)`,
             }}
           >
             {backgroundImageUrl ? (
