@@ -147,7 +147,7 @@ const GOODY_BAG_ITEMS = [
     id: "listen",
     icon: Ear,
     label: "Listen",
-    content: "Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
+    content: "Available from Friday 27th March 2026.<br />Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: DEFAULT_LISTEN_URL,
     image: "/images/2026-FiK4K-EASTER3.jpg",
   },
@@ -508,7 +508,7 @@ export default function Day3Page() {
 
       {/* Day title */}
       <div className="absolute top-0 left-0 z-30 bg-white/90 px-2 sm:px-4 py-2 sm:py-3 rounded-br-xl shadow-lg z-90">
-        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">TestDay 3: The Empty Tomb</h1>
+        <h1 className="text-xs sm:text-base font-bold text-[#5D4037]">Day 3: The Empty Tomb</h1>
       </div>
 
       <Link
