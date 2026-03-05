@@ -24,9 +24,9 @@ export default function HomePage() {
       {/* Main content */}
       <div className="relative z-0 min-h-screen flex flex-col items-center justify-center px-4 sm:px-8 py-8 sm:py-16">
         {/* Logo */}
-        <div className="mb-6 sm:mb-12 w-full max-w-2xl px-4">
+        <div className="mb-6 sm:mb-12 w-full max-w-lg px-4">
           <Image
-            src="/images/title-home.png"
+            src="/images/title-home-cropped.png"
             alt="Let's Go! A Family Easter Adventure"
             width={1200}
             height={600}
