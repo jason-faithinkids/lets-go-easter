@@ -88,7 +88,7 @@ const GOODY_BAG_ITEMS = [
     id: "watch",
     icon: Clapperboard,
     label: "Watch",
-    content: "Watch The Easter Story Lego video from 1 min 37 secs to 3 min 35 secs.",
+    content: "Watch The Easter Story Lego video from Go Chatter from 1 min 37 secs to 3 min 35 secs.",
     embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=97&end=215&si=IkxmVHHvt4JnoAGg",
   },
   {
@@ -327,21 +327,31 @@ export default function Day2Page() {
     setDragStart({ x: touch.clientX, y: touch.clientY })
   }
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return
-    e.preventDefault()
+    const handleTouchMove = (e: React.TouchEvent) => {
+      if (!isDragging) return
+      // Prevent scrolling the actual webpage while dragging the map
+      e.preventDefault()
 
-    const touch = e.touches[0]
-    const dx = (dragStart.x - touch.clientX) * 0.15
-    const dy = (dragStart.y - touch.clientY) * 0.15
+      const touch = e.touches[0]
+      
+      // High sensitivity for the 400% mobile scale, 
+      // lower for the 115% desktop scale.
+      const sensitivity = isMobile ? 0.15 : 0.15
 
-    setPanPosition((prev) => ({
-      x: Math.max(0, Math.min(100, prev.x + dx)),
-      y: Math.max(0, Math.min(100, prev.y + dy)),
-    }))
+      console.log(sensitivity);
 
-    setDragStart({ x: touch.clientX, y: touch.clientY })
-  }
+      // Calculate how far the finger moved since the last event
+      const dx = (dragStart.x - touch.clientX) * sensitivity
+      const dy = (dragStart.y - touch.clientY) * sensitivity
+
+      setPanPosition((prev) => ({
+        x: Math.max(0, Math.min(100, prev.x + dx)),
+        y: Math.max(0, Math.min(100, prev.y + dy)),
+      }))
+
+      // Update the reference point for the next movement frame
+      setDragStart({ x: touch.clientX, y: touch.clientY })
+    }
 
   const handleTouchEnd = () => {
     setIsDragging(false)
@@ -377,7 +387,27 @@ export default function Day2Page() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isInventoryCollapsed, setIsInventoryCollapsed] = useState(false);
 
-  const hintAngle = getHintDirection()
+  const hintAngle = getHintDirection();
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // New state
+
+  useEffect(() => {
+    setIsMounted(true); // Flag that we are now on the client
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // If not mounted yet, return a consistent "loading" or "desktop" version 
+  // that matches exactly what the server would produce.
+  if (!isMounted) {
+    return <div className="h-screen w-screen bg-[#3B9FD8]" />; 
+  }
+
+  const multX = isMobile ? 0.8 : 0.13; // 400% width vs 115% width
+  const multY = isMobile ? 0.333 : 0.13; // 150% vs 115%
 
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-[#8B4513]">
@@ -395,9 +425,9 @@ export default function Day2Page() {
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="absolute w-[115%] h-[115%] transition-transform duration-100 ease-out"
+            className="absolute w-[500%] h-[150%] md:w-[115%] md:h-[115%] transition-transform duration-100 ease-out"
             style={{
-              transform: `translate(${-panPosition.x * 0.15}%, ${-panPosition.y * 0.15}%)`,
+              transform: `translate(${-panPosition.x * multX}%, ${-panPosition.y * multY}%)`,
             }}
           >
             {backgroundImageUrl ? (

@@ -88,7 +88,7 @@ const GOODY_BAG_ITEMS = [
     id: "watch",
     icon: Clapperboard,
     label: "Watch",
-    content: "Watch The Lego Easter Story video from the beginning until 1 min 37 secs.",
+    content: "Watch The Lego Easter Story video from Go Chatter from the beginning until 1 min 37 secs.",
     embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=0&end=97&si=IkxmVHHvt4JnoAGg",
   },
   {

@@ -106,7 +106,7 @@ const GOODY_BAG_ITEMS = [
     id: "watch",
     icon: Clapperboard,
     label: "Watch",
-    content: "Watch The Easter Story Lego video from 3 min 36 secs to the end.",
+    content: "Watch The Easter Story Lego video from Go Chatter from 3 min 36 secs to the end.",
     embedVideo: "https://www.youtube.com/embed/R2Fa52A-3kc?start=216&si=IkxmVHHvt4JnoAGg",
   },
   {
@@ -147,7 +147,7 @@ const GOODY_BAG_ITEMS = [
     id: "listen",
     icon: Ear,
     label: "Listen",
-    content: "Available from Friday 27th March 2026.<br />Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
+    content: "Available from Friday 27th March 2026. Join Ed and Jam for this Faith in Kids for Kids family podcast to explore what happened that very first Easter morning. The episode includes fun facts, an explanation of the Bible passage, questions to get everyone thinking, as well as music and a silly sketch.",
     link: DEFAULT_LISTEN_URL,
     image: "/images/2026-FiK4K-EASTER3.jpg",
   },
@@ -375,17 +375,27 @@ export default function Day3Page() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging) return
-    e.preventDefault() // Prevent scrolling while dragging
+    // Prevent scrolling the actual webpage while dragging the map
+    e.preventDefault()
 
     const touch = e.touches[0]
-    const dx = (dragStart.x - touch.clientX) * 0.15
-    const dy = (dragStart.y - touch.clientY) * 0.15
+    
+    // High sensitivity for the 400% mobile scale, 
+    // lower for the 115% desktop scale.
+    const sensitivity = isMobile ? 0.15 : 0.15
+
+    console.log(sensitivity);
+
+    // Calculate how far the finger moved since the last event
+    const dx = (dragStart.x - touch.clientX) * sensitivity
+    const dy = (dragStart.y - touch.clientY) * sensitivity
 
     setPanPosition((prev) => ({
       x: Math.max(0, Math.min(100, prev.x + dx)),
       y: Math.max(0, Math.min(100, prev.y + dy)),
     }))
 
+    // Update the reference point for the next movement frame
     setDragStart({ x: touch.clientX, y: touch.clientY })
   }
 
@@ -425,7 +435,27 @@ export default function Day3Page() {
   const [isInventoryCollapsed, setIsInventoryCollapsed] = useState(false);
 
 
-  const hintAngle = getHintDirection()
+  const hintAngle = getHintDirection();
+
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMounted, setIsMounted] = useState(false); // New state
+
+  useEffect(() => {
+    setIsMounted(true); // Flag that we are now on the client
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // If not mounted yet, return a consistent "loading" or "desktop" version 
+  // that matches exactly what the server would produce.
+  if (!isMounted) {
+    return <div className="h-screen w-screen bg-[#3B9FD8]" />; 
+  }
+
+  const multX = isMobile ? 0.8 : 0.13; // 400% width vs 115% width
+  const multY = isMobile ? 0.333 : 0.13; // 150% vs 115%
 
   return (
     <div className="h-screen w-screen overflow-hidden relative bg-[#4CAF50]">
@@ -443,9 +473,9 @@ export default function Day3Page() {
           onTouchEnd={handleTouchEnd}
         >
           <div
-            className="absolute w-[150%] h-[150%] transition-transform duration-100 ease-out"
+            className="absolute w-[500%] h-[150%] md:w-[115%] md:h-[115%] transition-transform duration-100 ease-out"
             style={{
-              transform: `translate(${-panPosition.x * 0.5}%, ${-panPosition.y * 0.5}%)`,
+              transform: `translate(${-panPosition.x * multX}%, ${-panPosition.y * multY}%)`,
             }}
           >
             {backgroundImageUrl ? (
